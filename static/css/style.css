@@ -781,3 +781,12 @@ body {
 .amort th:first-child, .amort td:first-child { text-align: left; }
 .amort td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .amort tbody tr:last-child td { border-bottom: none; }
+
+/* ---- prepayment rows ---- */
+.prepayRow { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; }
+.prepayCell { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.prepayCell > label { font-size: .62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.prepayCell .ppinput { font-size: 1.05rem; padding: 9px 6px; background: #f6f8fb; border: 1px solid var(--line); border-radius: 11px; text-align: center; }
+.ppdel { flex: none; width: 36px; height: 40px; border: none; border-radius: 11px; background: #fdecec; color: #c23b3b; font-size: .85rem; cursor: pointer; }
+.ppdel:active { background: #f9d8d8; }
+.amortwrap { overflow-x: auto; }

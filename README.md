@@ -21,7 +21,7 @@ python3 app.py
 | 🔍 Search & filter | By material, store, city, or category — Tamil names searchable too |
 | 🇮🇳 Bilingual UI | One tap switches the entire interface between English and Tamil |
 | ❤️ Favourites | Save materials & stores (persists in the browser) |
-| 🧮 Construction calculator | Material estimate (built-up area, quality tier, floors, wall material) + **Home Loan EMI calculator** with free-entry down payment & tenure, and a **detailed prepayment module** — one-time lumpsum (after N years) or monthly extra: interest saved, tenure cut, reduced-EMI alternative and a year-wise amortization schedule |
+| 🧮 Construction calculator | Material estimate (built-up area, quality tier, floors, wall material) + **Home Loan EMI calculator** with free-entry down payment & tenure, and a **detailed prepayment module** — add any number of (month, amount) prepayments; interest saved, tenure cut, reduced-EMI alternative and a year-wise amortization schedule with a Prepaid column |
 | 🏗️ Builders directory | **32 real Chennai-area builders** (compiled from company websites, Justdial & Sulekha, Sep 2026) with package rates ₹1,550–₹2,500/sq.ft, phones, websites, inclusions + 9 sample listings in other TN cities — filter by city & package type |
 
 ## Project layout

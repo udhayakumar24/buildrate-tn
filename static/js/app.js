@@ -39,12 +39,14 @@
       dp: isFinite(+l.dp) && +l.dp >= 1 && +l.dp <= 90 ? +l.dp : 20,
       rate: isFinite(+l.rate) && +l.rate > 1 && +l.rate < 30 ? +l.rate : 8.5,
       years: isFinite(+l.years) && +l.years >= 1 && +l.years <= 40 ? +l.years : 20,
-      prepayMode: l.prepayMode === 'monthly' ? 'monthly' : 'lump',
-      lumpAmt: isFinite(+l.lumpAmt) && +l.lumpAmt >= 0 ? +l.lumpAmt : 100000,
-      lumpYear: isFinite(+l.lumpYear) && +l.lumpYear >= 0 && +l.lumpYear <= 39 ? +l.lumpYear : 1,
-      extraEmi: isFinite(+l.extraEmi) && +l.extraEmi >= 0 ? +l.extraEmi : 2000
+      years: isFinite(+l.years) && +l.years >= 1 && +l.years <= 40 ? +l.years : 20
     };
-    state.loan.lumpYear = Math.min(state.loan.lumpYear, state.loan.years - 1);
+    state.loan.prepays = Array.isArray(l.prepays) && l.prepays.length
+      ? l.prepays.filter(function (p) { return p && isFinite(+p.m) && isFinite(+p.amt); })
+          .map(function (p) { return { m: Math.max(1, Math.round(+p.m)), amt: Math.max(0, Math.round(+p.amt)) }; })
+      : (isFinite(+l.lumpAmt) && +l.lumpAmt > 0
+          ? [{ m: Math.max(0, Math.round(+l.lumpYear || 0)) * 12 + 1, amt: Math.round(+l.lumpAmt) }]
+          : [{ m: 13, amt: 100000 }]);
   })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
@@ -187,12 +189,12 @@
       mo_short: 'mo',
       orig_short: 'orig',
       prepay_title: 'Prepayment calculator',
-      prepay_lump: 'One-time lumpsum',
-      prepay_monthly: 'Extra every month',
-      prepay_amount: 'Prepayment amount',
-      prepay_after: 'Pay it after',
-      prepay_extra: 'Extra amount with EMI',
       prepay_savings: 'Prepayment savings',
+      month_no: 'Month #',
+      amount_lbl: 'Amount',
+      add_prepay: 'Add prepayment',
+      col_prepaid: 'Prepaid',
+      prepay_hint: 'Month counts from the first EMI — 13 = after 1 year, 25 = after 2 years.',
       interest_saved: 'Interest saved',
       tenure_cut: 'Tenure cut by',
       loan_closes: 'Loan closes in',
@@ -330,12 +332,12 @@
       mo_short: 'மாத',
       orig_short: 'முதலில்',
       prepay_title: 'முன்செலுத்தல் கணக்கீடு',
-      prepay_lump: 'ஒருமுறை தொகை',
-      prepay_monthly: 'மாதம்தோறும் கூடுதல்',
-      prepay_amount: 'முன்செலுத்தல் தொகை',
-      prepay_after: 'இத்தனை ஆண்டுகளுக்குப் பிறகு',
-      prepay_extra: 'EMI-உடன் சேர்த்து செலுத்தும் தொகை',
       prepay_savings: 'முன்செலுத்தல் சேமிப்பு',
+      month_no: 'மாத எண்',
+      amount_lbl: 'தொகை',
+      add_prepay: 'முன்செலுத்தல் சேர்',
+      col_prepaid: 'முன்செலுத்தல்',
+      prepay_hint: 'மாத எண் முதல் EMI-இலிருந்து எண்ணப்படும் — 13 = 1 ஆண்டுக்குப் பிறகு, 25 = 2 ஆண்டுகளுக்குப் பிறகு.',
       interest_saved: 'வட்டி சேமிப்பு',
       tenure_cut: 'காலம் குறையும் அளவு',
       loan_closes: 'கடா முடிவடையும் காலம்',
@@ -1057,30 +1059,36 @@
     return s || '0';
   }
 
-  /* prepayment simulation: lumpsum after N years, or extra ₹ with every EMI */
+  /* prepayment simulation: user-entered (month, amount) entries applied at their months */
   function loanPrepay() {
     var L = state.loan, base = loanCalc();
     var r = L.rate / 1200, emi = base.emi, n = base.n, loan = base.loan;
-    var out = { active: false, mode: L.prepayMode, newN: n, monthsSaved: 0, intSaved: 0,
+    var out = { active: false, newN: n, monthsSaved: 0, intSaved: 0,
       newTotalInt: base.totalInt, newTotalRepay: base.totalRepay, reducedEmi: null, rows: [] };
-    var lump = L.prepayMode === 'lump' ? Math.max(0, +L.lumpAmt || 0) : 0;
-    var extra = L.prepayMode === 'monthly' ? Math.max(0, +L.extraEmi || 0) : 0;
-    if (loan <= 0 || (lump <= 0 && extra <= 0)) return out;
-    var lumpMonth = Math.min(Math.round(Math.max(0, +L.lumpYear || 0)) * 12 + 1, n);
-    var B = loan, m = 0, intTot = 0, paidTot = 0, yp = 0, yi = 0, BafterLump = null;
+    if (loan <= 0) return out;
+    var payMap = {}, payKeys = 0;
+    (L.prepays || []).forEach(function (p) {
+      if (!p || !isFinite(+p.m) || !isFinite(+p.amt) || +p.amt <= 0) return;
+      var mm = Math.min(Math.max(1, Math.round(+p.m)), n);
+      if (!payMap[mm]) payKeys++;
+      payMap[mm] = (payMap[mm] || 0) + Math.round(+p.amt);
+    });
+    if (!payKeys) return out;
+    var singleMonth = payKeys === 1 ? +Object.keys(payMap)[0] : null;
+    var B = loan, m = 0, intTot = 0, paidTot = 0, yp = 0, yi = 0, ypre = 0, BafterLast = null;
     while (B > 0.005 && m <= n) {
       m++;
       var iM = B * r;
-      var pay = Math.min(emi + extra, B + iM);
+      var pay = Math.min(emi, B + iM);
       var prM = pay - iM;
       B -= prM; if (B < 0) B = 0;
       paidTot += pay; intTot += iM; yp += prM; yi += iM;
-      if (lump > 0 && m === lumpMonth) {
-        var lumpApply = Math.min(lump, B);
-        if (lumpApply > 0) { B -= lumpApply; paidTot += lumpApply; yp += lumpApply; }
-        BafterLump = B;
+      if (payMap[m]) {
+        var ppay = Math.min(payMap[m], B);
+        if (ppay > 0) { B -= ppay; paidTot += ppay; yp += ppay; ypre += ppay; }
+        BafterLast = B;
       }
-      if (m % 12 === 0 || B <= 0.005) { out.rows.push({ yr: Math.ceil(m / 12), p: yp, i: yi, bal: B }); yp = 0; yi = 0; }
+      if (m % 12 === 0 || B <= 0.005) { out.rows.push({ yr: Math.ceil(m / 12), p: yp, pre: ypre, i: yi, bal: B }); yp = 0; yi = 0; ypre = 0; }
     }
     if (B > 0.005) return out;
     out.active = true;
@@ -1089,10 +1097,10 @@
     out.newTotalInt = intTot;
     out.newTotalRepay = paidTot;
     out.intSaved = Math.max(0, base.totalInt - intTot);
-    if (lump > 0 && BafterLump != null && lumpMonth < n) {
-      var remN = n - lumpMonth;
-      if (BafterLump <= 0.005) out.reducedEmi = 0;
-      else { var f2 = Math.pow(1 + r, remN); out.reducedEmi = BafterLump * r * f2 / (f2 - 1); }
+    if (singleMonth != null && singleMonth < n && BafterLast != null) {
+      var remN = n - singleMonth;
+      if (BafterLast <= 0.005) out.reducedEmi = 0;
+      else { var f2 = Math.pow(1 + r, remN); out.reducedEmi = BafterLast * r * f2 / (f2 - 1); }
     }
     return out;
   }
@@ -1101,10 +1109,10 @@
     var pp = loanPrepay();
     if (!pp.active) return '';
     var rows = pp.rows.map(function (row) {
-      return '<tr><td>' + row.yr + '</td><td>' + fmt(Math.round(row.p)) + '</td><td>' + fmt(Math.round(row.i)) + '</td><td>' + fmt(Math.round(row.bal)) + '</td></tr>';
+      return '<tr><td>' + row.yr + '</td><td>' + fmt(Math.round(row.p)) + '</td><td>' + (row.pre > 0 ? fmt(Math.round(row.pre)) : '—') + '</td><td>' + fmt(Math.round(row.i)) + '</td><td>' + fmt(Math.round(row.bal)) + '</td></tr>';
     }).join('');
     var alt = '';
-    if (pp.mode === 'lump' && pp.reducedEmi != null && pp.reducedEmi > 0) {
+    if (pp.reducedEmi != null && pp.reducedEmi > 0) {
       alt = '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('emi_if_tenure_kept')) + ':</b> ' +
         fmt(Math.round(pp.reducedEmi)) + ' <small>(' + esc(t('per_month')) + ' · ' + esc(t('orig_short')) + ' ' + fmt(Math.round(base.emi)) + ')</small></span></div>';
     }
@@ -1117,7 +1125,7 @@
       ' <small>(' + esc(t('orig_short')) + ' ' + fmt(Math.round(base.totalInt)) + ')</small></span></div>' + alt +
       '<label class="plabel" style="margin-top:12px">' + esc(t('yr_schedule')) + '</label>' +
       '<div class="amortwrap"><table class="amort"><thead><tr>' +
-      '<th>' + esc(t('col_year')) + '</th><th>' + esc(t('principal')) + '</th><th>' + esc(t('interest')) + '</th><th>' + esc(t('col_balance')) + '</th>' +
+      '<th>' + esc(t('col_year')) + '</th><th>' + esc(t('principal')) + '</th><th>' + esc(t('col_prepaid')) + '</th><th>' + esc(t('interest')) + '</th><th>' + esc(t('col_balance')) + '</th>' +
       '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<div class="notecard">💡 ' + esc(t('prepay_note')) + '</div></div>';
   }
@@ -1184,29 +1192,17 @@
       '<span class="unitlbl">' + esc(t('yrs')) + '</span></div></div>' +
 
       '<div class="card calcpanel"><label class="plabel">' + esc(t('prepay_title')) + '</label>' +
-      '<div class="chiprow" style="margin-bottom:8px">' +
-      '<button class="chip' + (L.prepayMode === 'lump' ? ' active' : '') + '" data-action="loanprepaymode" data-val="lump">' + esc(t('prepay_lump')) + '</button>' +
-      '<button class="chip' + (L.prepayMode === 'monthly' ? ' active' : '') + '" data-action="loanprepaymode" data-val="monthly">' + esc(t('prepay_monthly')) + '</button></div>' +
-      (L.prepayMode === 'lump'
-        ? '<label class="plabel" style="margin-top:6px">' + esc(t('prepay_amount')) + '</label>' +
-          '<div class="stepper">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="lumpAmt" data-delta="-50000" aria-label="minus">−</button>' +
-          '<input id="loanLump" class="areainput" type="number" inputmode="numeric" min="0" step="10000" value="' + L.lumpAmt + '" aria-label="prepayment amount">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="lumpAmt" data-delta="50000" aria-label="plus">+</button>' +
-          '<span class="unitlbl">₹</span></div>' +
-          '<label class="plabel" style="margin-top:10px">' + esc(t('prepay_after')) + '</label>' +
-          '<div class="stepper">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="lumpYear" data-delta="-1" aria-label="minus">−</button>' +
-          '<input id="loanLumpYr" class="areainput" type="number" inputmode="numeric" min="0" max="' + (L.years - 1) + '" step="1" value="' + Math.min(L.lumpYear, L.years - 1) + '" aria-label="pay after this many years">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="lumpYear" data-delta="1" aria-label="plus">+</button>' +
-          '<span class="unitlbl">' + esc(t('yrs')) + '</span></div>'
-        : '<label class="plabel" style="margin-top:6px">' + esc(t('prepay_extra')) + '</label>' +
-          '<div class="stepper">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="extraEmi" data-delta="-500" aria-label="minus">−</button>' +
-          '<input id="loanExtra" class="areainput" type="number" inputmode="numeric" min="0" step="500" value="' + L.extraEmi + '" aria-label="extra monthly amount">' +
-          '<button class="stepbtn" data-action="loanstep" data-key="extraEmi" data-delta="500" aria-label="plus">+</button>' +
-          '<span class="unitlbl">₹/' + esc(t('mo_short')) + '</span></div>'
-      ) + '</div>' +
+      '<div class="prepayRows">' +
+      (L.prepays || []).map(function (p, i) {
+        return '<div class="prepayRow">' +
+          '<span class="prepayCell"><label>' + esc(t('month_no')) + '</label>' +
+          '<input id="pp_m_' + i + '" class="areainput ppinput" type="number" inputmode="numeric" min="1" step="1" value="' + p.m + '" aria-label="prepayment month number"></span>' +
+          '<span class="prepayCell"><label>' + esc(t('amount_lbl')) + ' (₹)</label>' +
+          '<input id="pp_a_' + i + '" class="areainput ppinput" type="number" inputmode="numeric" min="0" step="10000" value="' + p.amt + '" aria-label="prepayment amount"></span>' +
+          '<button class="ppdel" data-action="pp-del" data-idx="' + i + '" aria-label="remove prepayment">✕</button></div>';
+      }).join('') + '</div>' +
+      '<button class="chip" data-action="pp-add" style="margin-top:6px">＋ ' + esc(t('add_prepay')) + '</button>' +
+      '<p class="footnote" style="margin:8px 0 0">' + esc(t('prepay_hint')) + '</p></div>' +
 
       '<div id="loanResults"></div>';
 
@@ -1297,18 +1293,26 @@
         break;
       case 'loanstep': {
         var key = el.dataset.key, d = +el.dataset.delta;
-        var lim = { lakh: [3, 500], dp: [1, 90], rate: [4, 20], years: [1, 40], lumpAmt: [0, 100000000], lumpYear: [0, 39], extraEmi: [0, 1000000] }[key];
+        var lim = { lakh: [3, 500], dp: [1, 90], rate: [4, 20], years: [1, 40] }[key];
         if (lim) {
           var v = Math.max(lim[0], Math.min(lim[1], (+state.loan[key] || 0) + d));
           state.loan[key] = (key === 'rate') ? Math.round(v * 100) / 100 : Math.round(v);
-          if (key === 'years') state.loan.lumpYear = Math.min(state.loan.lumpYear, state.loan.years - 1);
           persistSet('br_loan', state.loan);
         }
         render();
         break;
       }
-      case 'loanprepaymode':
-        state.loan.prepayMode = el.dataset.val === 'monthly' ? 'monthly' : 'lump';
+      case 'pp-add': {
+        var ps = state.loan.prepays || [];
+        var lastM = ps.length ? ps[ps.length - 1].m : 1;
+        ps.push({ m: Math.min(lastM + 12, state.loan.years * 12), amt: 100000 });
+        state.loan.prepays = ps;
+        persistSet('br_loan', state.loan);
+        render();
+        break;
+      }
+      case 'pp-del':
+        state.loan.prepays.splice(+el.dataset.idx, 1);
         persistSet('br_loan', state.loan);
         render();
         break;
@@ -1387,33 +1391,21 @@
       var yrv = parseInt(e.target.value, 10);
       if (!isNaN(yrv) && yrv >= 1 && yrv <= 40) {
         state.loan.years = yrv;
-        state.loan.lumpYear = Math.min(state.loan.lumpYear, yrv - 1);
         persistSet('br_loan', state.loan);
         if (updaters.loan) updaters.loan();
       }
     }
-    if (e.target.id === 'loanLump') {
-      var la = parseInt(e.target.value, 10);
-      if (!isNaN(la) && la >= 0) {
-        state.loan.lumpAmt = Math.min(100000000, la);
-        persistSet('br_loan', state.loan);
-        if (updaters.loan) updaters.loan();
-      }
-    }
-    if (e.target.id === 'loanLumpYr') {
-      var ly = parseInt(e.target.value, 10);
-      if (!isNaN(ly) && ly >= 0 && ly <= 39) {
-        state.loan.lumpYear = ly;
-        persistSet('br_loan', state.loan);
-        if (updaters.loan) updaters.loan();
-      }
-    }
-    if (e.target.id === 'loanExtra') {
-      var ex = parseInt(e.target.value, 10);
-      if (!isNaN(ex) && ex >= 0) {
-        state.loan.extraEmi = Math.min(1000000, ex);
-        persistSet('br_loan', state.loan);
-        if (updaters.loan) updaters.loan();
+    if (e.target.id && e.target.id.indexOf('pp_') === 0) {
+      var pparts = e.target.id.split('_'), pidx = +pparts[2], pIsAmt = pparts[1] === 'a';
+      var ps2 = state.loan.prepays || [];
+      if (ps2[pidx]) {
+        var pv = parseInt(e.target.value, 10);
+        if (!isNaN(pv) && pv >= 0) {
+          if (pIsAmt) ps2[pidx].amt = pv;
+          else ps2[pidx].m = Math.max(1, pv);
+          persistSet('br_loan', state.loan);
+          if (updaters.loan) updaters.loan();
+        }
       }
     }
     if (e.target.id === 'calcArea') {
