@@ -2,6 +2,12 @@
 (function () {
   'use strict';
 
+  /* Surface script errors visibly instead of a frozen screen */
+  window.addEventListener('error', function (e) {
+    var el = document.getElementById('fatalErr');
+    if (el) { el.hidden = false; el.textContent = '⚠ Script error: ' + (e.message || 'unknown'); }
+  });
+
   /* ---------------- safe persistence (works even in sandboxed previews) ---------------- */
   var mem = {};
   function persistGet(key, fallback) {
@@ -247,11 +253,18 @@
     if (['home', 'materials', 'stores', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
     return { view: 'home', param: null };
   }
+  var lastSetHash = null;
+  var pendingRoute = null;
   function go(route) {
+    var target = '#/' + route.replace(/^#\/?/, '');
+    pendingRoute = parseRouteFromStr(target);
+    /* Sync the URL for deep-linking, but NEVER depend on it: sandboxed
+       previews and some in-app browsers block hash changes silently.
+       Rendering happens directly, so taps always work. */
     try {
-      if (('#/' + route.replace(/^#\/?/, '')) === location.hash) render();
-      else location.hash = '#/' + route.replace(/^#\/?/, '');
-    } catch (e) { state.route = parseRouteFromStr(route); render(); }
+      if (target !== location.hash) { lastSetHash = target; location.hash = target; }
+    } catch (e) { /* sandboxed — ignore */ }
+    render();
   }
   function parseRouteFromStr(r) {
     var s = r.replace(/^#\/?/, '');
@@ -557,7 +570,8 @@
 
   /* ---------------- render dispatcher ---------------- */
   function render() {
-    state.route = parseHash();
+    if (pendingRoute) { state.route = pendingRoute; pendingRoute = null; }
+    else { state.route = parseHash(); }
     setActiveTab(state.route.view);
     updaters.mat = null; updaters.store = null;
     main.scrollTop = 0;
@@ -660,7 +674,13 @@
     render();
   });
 
-  window.addEventListener('hashchange', render);
+  window.addEventListener('hashchange', function () {
+    /* Skip the echo of our own hash update; only real back/forward
+       or manual URL changes should trigger a re-render. */
+    if (lastSetHash !== null && location.hash === lastSetHash) { lastSetHash = null; return; }
+    lastSetHash = null;
+    render();
+  });
   applyI18n();
   render();
 })();

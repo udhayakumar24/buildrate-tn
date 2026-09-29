@@ -45,7 +45,8 @@ body {
 .phone {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100vh;   /* fallback for older browsers */
+  height: 100dvh;  /* modern browsers: dynamic viewport height */
   max-width: 480px;
   margin: 0 auto;
   background: var(--bg);
@@ -620,9 +621,15 @@ body {
   * { animation: none !important; transition: none !important; }
 }
 
+/* snappier taps on touch devices (no 300ms double-tap-zoom delay) */
+.navitem, .matrow, .storerow, .cat, .chip, .hcard, .sellerrow, .btn, .favbtn, .backbtn, .see-all {
+  touch-action: manipulation;
+}
+
 </style>
 </head>
 <body>
+<div id="fatalErr" hidden style="position:fixed;top:0;left:0;right:0;z-index:99;background:#dc2626;color:#fff;font:600 12px/1.4 -apple-system,system-ui,sans-serif;padding:8px 12px;"></div>
 <div class="phone" id="phone">
 
   <header class="appbar">
@@ -677,6 +684,12 @@ body {
 /* BuildRate TN — mobile SPA (vanilla JS, no frameworks) */
 (function () {
   'use strict';
+
+  /* Surface script errors visibly instead of a frozen screen */
+  window.addEventListener('error', function (e) {
+    var el = document.getElementById('fatalErr');
+    if (el) { el.hidden = false; el.textContent = '⚠ Script error: ' + (e.message || 'unknown'); }
+  });
 
   /* ---------------- safe persistence (works even in sandboxed previews) ---------------- */
   var mem = {};
@@ -923,11 +936,18 @@ body {
     if (['home', 'materials', 'stores', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
     return { view: 'home', param: null };
   }
+  var lastSetHash = null;
+  var pendingRoute = null;
   function go(route) {
+    var target = '#/' + route.replace(/^#\/?/, '');
+    pendingRoute = parseRouteFromStr(target);
+    /* Sync the URL for deep-linking, but NEVER depend on it: sandboxed
+       previews and some in-app browsers block hash changes silently.
+       Rendering happens directly, so taps always work. */
     try {
-      if (('#/' + route.replace(/^#\/?/, '')) === location.hash) render();
-      else location.hash = '#/' + route.replace(/^#\/?/, '');
-    } catch (e) { state.route = parseRouteFromStr(route); render(); }
+      if (target !== location.hash) { lastSetHash = target; location.hash = target; }
+    } catch (e) { /* sandboxed — ignore */ }
+    render();
   }
   function parseRouteFromStr(r) {
     var s = r.replace(/^#\/?/, '');
@@ -1233,7 +1253,8 @@ body {
 
   /* ---------------- render dispatcher ---------------- */
   function render() {
-    state.route = parseHash();
+    if (pendingRoute) { state.route = pendingRoute; pendingRoute = null; }
+    else { state.route = parseHash(); }
     setActiveTab(state.route.view);
     updaters.mat = null; updaters.store = null;
     main.scrollTop = 0;
@@ -1336,7 +1357,13 @@ body {
     render();
   });
 
-  window.addEventListener('hashchange', render);
+  window.addEventListener('hashchange', function () {
+    /* Skip the echo of our own hash update; only real back/forward
+       or manual URL changes should trigger a re-render. */
+    if (lastSetHash !== null && location.hash === lastSetHash) { lastSetHash = null; return; }
+    lastSetHash = null;
+    render();
+  });
   applyI18n();
   render();
 })();

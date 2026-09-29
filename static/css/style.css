@@ -35,7 +35,8 @@ body {
 .phone {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100vh;   /* fallback for older browsers */
+  height: 100dvh;  /* modern browsers: dynamic viewport height */
   max-width: 480px;
   margin: 0 auto;
   background: var(--bg);
@@ -608,4 +609,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+/* snappier taps on touch devices (no 300ms double-tap-zoom delay) */
+.navitem, .matrow, .storerow, .cat, .chip, .hcard, .sellerrow, .btn, .favbtn, .backbtn, .see-all {
+  touch-action: manipulation;
 }
