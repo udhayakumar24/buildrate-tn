@@ -58,6 +58,11 @@
       area: isFinite(+q.area) && +q.area >= 300 && +q.area <= 10000 ? Math.round(+q.area) : 1000
     };
   })();
+  state.chat = { msgs: [] };
+  (function initChat() {
+    var h = persistGet('br_chat', null);
+    if (Array.isArray(h)) state.chat.msgs = h.slice(-40);
+  })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
     if (!c || typeof c !== 'object') c = {};
@@ -241,7 +246,16 @@
       quote_extras_subtotal: 'Extras subtotal',
       of_construction: 'of construction cost',
       quote_total_project: 'Total project cost',
-      quote_note: 'Indicative Tamil Nadu ranges (Sep 2026). Interiors/woodwork, land cost & registration are NOT included. Some builders include sump, septic or compound wall — check exactly what your package covers.'
+      quote_note: 'Indicative Tamil Nadu ranges (Sep 2026). Interiors/woodwork, land cost & registration are NOT included. Some builders include sump, septic or compound wall — check exactly what your package covers.',
+      ai_title: 'Ask BuildRate AI',
+      ai_sub: 'Construction help · works offline',
+      ai_placeholder: 'Ask about construction…',
+      ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — ask me about material prices, Chennai builders, EMI & prepayment, thumb rules (cement bags, steel kg, sand), vastu, approvals, waterproofing… anything about building a home in Tamil Nadu.",
+      ai_fallback: "I'm a small offline assistant built into this app. I know its material prices, builders & calculators, plus construction basics — thumb rules, curing, concrete grades, approvals, vastu, borewell, tiles, paint… Try one of these:",
+      ai_open_materials: 'Open Materials',
+      ai_open_builders: 'Open Builders',
+      ai_open_stores: 'Open Stores',
+      ai_open_calc: 'Open Calculator'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -412,7 +426,16 @@
       quote_extras_subtotal: 'கூடுதல் செலவு மொத்தம்',
       of_construction: 'கட்டுமான செலவில்',
       quote_total_project: 'மொத்த திட்டச் செலவு',
-      quote_note: 'தமிழ்நாட்டு சராசரி வகைப்பாடுகள் (செப். 2026). இன்டீரியர்/மர வேலை, நில விலை & பதிவுக் கட்டணம் சேர்க்கப்படவில்லை. சில பில்டர்கள் சம்ப், செப்டிக், சுற்றுசுவரையும் பேக்கேஜில் சேர்ப்பார்கள் — உங்கள் ஒப்பந்தத்தில் சரிபார்க்கவும்.'
+      quote_note: 'தமிழ்நாட்டு சராசரி வகைப்பாடுகள் (செப். 2026). இன்டீரியர்/மர வேலை, நில விலை & பதிவுக் கட்டணம் சேர்க்கப்படவில்லை. சில பில்டர்கள் சம்ப், செப்டிக், சுற்றுசுவரையும் பேக்கேஜில் சேர்ப்பார்கள் — உங்கள் ஒப்பந்தத்தில் சரிபார்க்கவும்.',
+      ai_title: 'BuildRate AI',
+      ai_sub: 'கட்டுமான உதவி · ஆஃப்லைன்',
+      ai_placeholder: 'கட்டுமானம் பற்றி கேளுங்கள்…',
+      ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், தம்புல் ரூல் (சிமெண்ட் மூட்டை, இரும்பு கிலோ, மணல்), வாஸ்து, ஒப்புதல், நீர்ப்புகாப்பு — தமிழ்நாட்டில் வீடு கட்டுவது பற்றி எதையும் கேளுங்கள்.',
+      ai_fallback: 'நான் இந்த ஆப்பில் உள்ள சிறிய ஆஃப்லைன் உதவியாளர் — பொருள் விலைகள், பில்டர்கள், கால்குலேட்டர், மேலும் தம்புல் ரூல், க்யூரிங், கான்கிரீட் கிரேடு, ஒப்புதல், வாஸ்து, கிணறு, ஓடு, பெயிண்ட் அடிப்படைகள் தெரியும். இவற்றை முயற்சிக்கவும்:',
+      ai_open_materials: 'பொருட்களைத் திற',
+      ai_open_builders: 'பில்டர்களைத் திற',
+      ai_open_stores: 'கடைகளைத் திற',
+      ai_open_calc: 'கால்குலேட்டரைத் திற'
     }
   };
   function t(key, n, m) {
@@ -522,6 +545,295 @@
     else { state.favs.push({ type: type, slug: slug }); toast(t('saved_toast')); }
     persistSet('br_favs', state.favs);
   }
+
+  /* ---------------- BuildRate AI (offline assistant) ---------------- */
+  var AI_KB = [
+    { k: ['which cement', 'best cement', 'cement type', 'cement difference', 'opc', 'ppc', 'சிறந்த சிமெண்ட்', 'சிமெண்ட் வகை', 'எந்த சிமெண்ட்'],
+      en: "**OPC 53** sets faster — ideal for RCC (footings, columns, beams, slabs). **PPC** (fly-ash) gives better long-term durability, less heat — good for plastering & masonry. Either is fine for a home; use one brand throughout and buy fresh stock (made within 2–3 months).",
+      ta: "**OPC 53** விரைவாக பிடிக்கும் — அடித்தளம், தூண், விளிம்பு, சில்லு RCC வேலைகளுக்கு சிறந்தது. **PPC** (ப்ளை-ஆஷ்) நீடித்த தன்மை கொண்டது — பூச்சு & செங்கல் வேலைக்கு ஏற்றது. ஒரே பிராண்டை முழு வேலைக்கும் பயன்படுத்துங்கள்; 2–3 மாதத்திற்குள் தயாரிக்கப்பட்ட புதிய சிமெண்டை வாங்குங்கள்." },
+    { k: ['cement bags', 'how many bags', 'bags per', 'எத்தனை மூட்டை', 'மூட்டை சிமெண்ட்', 'சிமெண்ட் அளவு'],
+      en: "Thumb rule: a standard RCC home needs about **0.4 cement bags per sq.ft** of built-up area — a 1,000 sq.ft house ≈ **400 bags** (structure + plaster + flooring). For item-wise quantities open **Calc → Material Estimate**.",
+      ta: "தம்புல் ரூல்: சாதாரண RCC வீட்டுக்கு **ஒரு சதுர அடிக்கு ~0.4 மூட்டை** சிமெண்ட் — 1,000 சதுர அடி வீட்டுக்கு ~**400 மூட்டை**. பொருள் வாரியான துல்லிய கணக்குக்கு **Calculator → Material Estimate** பாருங்கள்." },
+    { k: ['steel per', 'kg per sqft', 'how much steel', 'steel quantity', 'இரும்பு அளவு', 'எவ்வளவு இரும்பு', 'சதுர அடிக்கு இரும்பு'],
+      en: "Thumb rule for residential RCC (up to G+2): **3.5–4 kg steel per sq.ft** of built-up area. A 1,000 sq.ft house ≈ **3.5–4 tonnes** of TMT. High-rise or heavy designs need more.",
+      ta: "வீட்டு RCC கட்டுமானத்திற்கு (G+2 வரை): **ஒரு சதுர அடிக்கு 3.5–4 கிலோ** TMT இரும்பு. 1,000 சதுர அடி வீட்டுக்கு ~**3.5–4 டன்**. பெரிய கட்டிடங்களுக்கு இன்னும் தேவை." },
+    { k: ['fe500', 'fe550', 'steel grade', 'tmt grade', 'இரும்பு கிரேடு', 'tmt வகை'],
+      en: "**Fe500D** is the sweet spot for homes — 'D' = higher ductility (bends without cracking), important for earthquake safety. Fe550 is stronger but less ductile; use only if your engineer specifies it.",
+      ta: "வீடுகளுக்கு **Fe500D** சிறந்த தேர்வு — 'D' என்பது நன்றாக வளையக்கூடிய தன்மை (நிலநடுக்க பாதுகாப்புக்கு முக்கியம்). Fe550 வலிமை அதிகம் ஆனால் வளையும் தன்மை குறைவு." },
+    { k: ['m-sand', 'msand', 'p-sand', 'river sand', 'which sand', 'எந்த மணல்', 'மணல் வித்தியாசம்', 'மணல் வகை'],
+      en: "**M-sand** is for concrete (RCC, blocks). **P-sand** is finer — for plastering. River sand is scarce & costlier in TN; M-sand is today's standard. Check silt content (<5%) before accepting a load.",
+      ta: "**M-மணல்** கான்கிரீட் வேலைக்கு (RCC, பிளாக்). **P-மணல்** நுணுக்கமானது — பூச்சு வேலைக்கு. ஆற்று மணல் TN-ல் அரிது & விலை அதிகம்; இன்று M-மணலே நிலையான தேர்வு. ஏற்றும்போது சில்ட் அளவு (<5%) சரிபார்க்கவும்." },
+    { k: ['20mm', '12mm', 'jelly size', 'aggregate size', 'blue metal', 'ஜெல்லி அளவு', 'கூழாங்கல் அளவு'],
+      en: "**20mm jelly** for slabs, columns & mass concrete. **12mm** where reinforcement is tight (thin beams). Wash off dust/mud before use — dirty aggregate weakens concrete.",
+      ta: "சில்லு, தூண், பெரிய கான்கிரீட்டுக்கு **20mm ஜெல்லி**. இரும்பு இறுக்கமான இடங்களில் **12mm**. பயன்படுத்தும் முன் கழுவுங்கள் — அசுத்த ஜெல்லி கான்கிரீட்டை பலவீனப்படுத்தும்." },
+    { k: ['m20', 'm25', 'concrete grade', 'mix ratio', 'proportion', 'கான்கிரீட் கிரேடு', 'மிக்ஸ் ரேஷியோ'],
+      en: "**M20** (≈1:1.5:3 cement:sand:jelly) is the common minimum for house RCC. **M25** for heavier loads. For slabs prefer design-mix (RMC) over hand-mixed nominal ratios — consistency matters more than grade.",
+      ta: "வீட்டு RCC-க்கு **M20** (≈1:1.5:3) வழக்கமான குறைந்தபட்ச கிரேடு. அதிக சுமைக்கு **M25**. சில்லுக்கு கை மிக்ஸை விட RMC (design-mix) நல்லது — சீரான தரமே முக்கியம்." },
+    { k: ['curing', 'cure', 'how long', 'நீர் ஊற்ற', 'க்யூரிங்', 'எத்தனை நாள் தண்ணீர்'],
+      en: "Cure concrete **minimum 7 days (14 better)** — keep the surface wet, starting within 8–12 hrs of casting. Plaster needs ~7 days. In hot weather cure morning + evening; skipping curing is the #1 cause of cracks.",
+      ta: "கான்கிரீட்டுக்கு **குறைந்தது 7 நாட்கள் (14 சிறந்தது)** தண்ணீர் ஊற்றவும் — வார்த்த 8–12 மணி நேரத்தில் தொடங்கவும். பூச்சுக்கு ~7 நாட்கள். வெயிலில் காலை+மாலை ஊற்றுங்கள் — சரியாக ஊற்றாததே விரிசலின் முக்கிய காரணம்." },
+    { k: ['aac', 'red brick', 'solid block', 'which brick', 'brick vs', 'செங்கல்', 'ஆக் பிளாக்', 'பிளாக் சுவர்', 'எந்த செங்கல்'],
+      en: "**Red brick**: traditional, strong, heavier structure. **AAC block**: light — faster masonry, less structural load, better heat/sound insulation, but costs more & needs skilled finishing. **Solid concrete block**: strong middle option for load-bearing walls.",
+      ta: "**செங்கல்**: பாரம்பரியம், வலிமையானது, கட்டமைப்பு கனம். **AAC பிளாக்**: இலகுரகம் — வேகமான கட்டுமானம், குறைந்த சுமை, வெப்பம்/ஒலி கட்டுப்பாடு; விலை கூடுதல். **சாலிட் பிளாக்**: சுமை தாங்கும் சுவருக்கு நல்ல இடைப்பட்ட தேர்வு." },
+    { k: ['foundation', 'footing', 'pile', 'soil test', 'அடித்தளம்', 'மண் பரிசோதனை', 'பைலிங்'],
+      en: "For G+2 on normal soil, **isolated/spread footings** are standard. Loose sand, clay or high water table → **pile foundation** (costlier). Get a **soil test first (₹5k–15k)** — it decides the foundation type and can save lakhs.",
+      ta: "சாதாரண மண்ணில் G+2 வீடுகளுக்கு **தனித்தனி அடித்தளம் (isolated footing)** வழக்கம். நெகிழ் மண் / அதிக நீர்மட்டம் → **பைல் அடித்தளம்** (செலவு அதிகம்). முதலில் **மண் பரிசோதனை (₹5–15 ஆயிரம்)** செய்யுங்கள் — அடித்தள வகையை அது தீர்மானிக்கும்." },
+    { k: ['stages', 'steps to build', 'construction process', 'order of construction', 'கட்டும் வரிசை', 'கட்டுமான படிகள்', 'எப்படி கட்டுவது'],
+      en: "Typical order: **1** soil test & plan approval → **2** excavation & anti-termite → **3** footings, columns to plinth → **4** backfill & plinth beam → **5** columns & roof slab → **6** brickwork → **7** electrical/plumbing conduiting → **8** plaster → **9** waterproofing, flooring, tiles → **10** paint, fittings, handover.",
+      ta: "வழக்கமான வரிசை: **1** மண் பரிசோதனை & ஒப்புதல் → **2** அகழ்வு & கரையான் மருந்து → **3** அடித்தளம், தூண் → **4** மண் நிரப்பு & plinth beam → **5** தூண் & சில்லு → **6** செங்கல் வேலை → **7** மின்/குழாய் → **8** பூச்சு → **9** நீர்ப்புகாப்பு, தரை, ஓடு → **10** பெயிண்ட், ஒப்படைப்பு." },
+    { k: ['cmda', 'dtcp', 'approval', 'permit', 'ஒப்புதல்', 'அனுமதி', 'பட்டா'],
+      en: "You need **CMDA** (Chennai metro) or **DTCP** (rest of TN) plan approval BEFORE construction: licensed engineer drawings + patta & parent documents → apply → fees → permit. Budget **₹80k–1.5L** incl. professional fees. Unapproved buildings risk fines, demolition & loan refusal.",
+      ta: "கட்டுமானத்திற்கு முன் **CMDA** (சென்னை) அல்லது **DTCP** (மற்ற TN பகுதிகள்) ஒப்புதல் கட்டாயம்: உரிமம் பெற்ற பொறியாளர் வரைபடம் + பட்டா & ஆவணங்கள் → விண்ணப்பம் → கட்டணம் → அனுமதி. **₹80 ஆயிரம்–1.5 லட்சம்** ஒதுக்குங்கள். ஒப்புதல் இல்லை என்றால் அபராதம்/இடிப்பு அபாயம் + கடா மறுப்பு." },
+    { k: ['fsi', 'far', 'plot coverage', 'setback', 'எஃப்எஸ்ஐ', 'செட்பேக்', 'இட விட்டு'],
+      en: "**FSI** = allowed built-up ÷ plot area. Typical TN residential: **1.5–2** (varies by road width & zone). 2,400 sq.ft plot × 1.5 → 3,600 sq.ft built-up allowed. Setbacks (open space on all sides) are mandatory and not counted in FSI.",
+      ta: "**FSI** = அனுமதிக்கப்படும் கட்டும் பரப்பு ÷ மனை பரப்பு. TN வீடுகளுக்கு **1.5–2** (சாலை அகலம் & மண்டலம் பொறுத்து மாறும்). 2,400 சதுர அடி மனை × 1.5 = 3,600 சதுர அடி. சுற்றிலும் விட வேண்டிய இடைவெளி (setback) கட்டாயம் — அது FSI-ல் சேராது." },
+    { k: ['vastu', 'vasthu', 'வாஸ்து'],
+      en: "Popular vastu points: entrance East/North, kitchen South-East, master bedroom South-West, pooja North-East; avoid toilets in North-East. It's belief-based — most builders offer vastu-compliant plans. Structural safety, light & ventilation matter more.",
+      ta: "பிரபல வாஸ்து குறிப்புகள்: வாசல் கிழக்கு/வடக்கு, சமையலறை தென்கிழக்கு, முதன்மை படுக்கையறை தென்மேற்கு, பூஜை வடகிழக்கு; குளியலறை வடகிழக்கு தவிர்க்கவும். நம்பிக்கை சார்ந்தது — கட்டமைப்பு பாதுகாப்பும் காற்று/வெளிச்சமும் முக்கியம்." },
+    { k: ['sump', 'septic', 'சம்ப்', 'செப்டிக்', 'தண்ணீர் டேங்க்'],
+      en: "**Water sump**: 5,000–10,000 L suits a family. **Septic tank**: ~2–3 m³ for 4–6 people + soak pit; keep away from borewell/sump & accessible for cleaning. Budget ₹50–80k (sump) and ₹40–70k (septic).",
+      ta: "**தண்ணீர் சம்ப்**: குடும்பத்திற்கு 5,000–10,000 லிட்டர். **செப்டிக் டேங்க்**: 4–6 பேருக்கு ~2–3 m³ + சோக் பிட்; கிணறு/சம்ப்பிலிருந்து தூரம், சுத்தம் செய்ய வசதி. சம்ப் ₹50–80 ஆயிரம், செப்டிக் ₹40–70 ஆயிரம்." },
+    { k: ['borewell', 'bore well', 'கிணறு', 'போர்வெல்', 'நிலத்தடி நீர்'],
+      en: "Chennai belt: expect **300–800 ft** depth (deeper towards OMR side). Cost **₹800–1,000/ft** + submersible pump ~₹25k. Drill near/after monsoon for a true yield reading; test water quality before designing plumbing.",
+      ta: "சென்னை பகுதியில் **300–800 அடி** ஆழம் எதிர்பார்க்கலாம் (OMR பக்கம் அதிகம்). **அடிக்கு ₹800–1,000** + மோட்டார் ~₹25 ஆயிரம். மழைக்காலம் நெருங்கும்போது அடித்தால் உண்மையான நீர் அளவு தெரியும்; தண்ணீர் தரத்தை பரிசோதிக்கவும்." },
+    { k: ['monsoon', 'rain', 'rainy', 'மழைக்கால', 'மழையில்'],
+      en: "Monsoon construction: keep cement on a raised dry platform, cover fresh concrete from rain for the first 12–24 hrs, never cast slabs in heavy rain, dewater foundation pits, cover unfinished brick tops.",
+      ta: "மழைக்கால கட்டுமானம்: சிமெண்டை உயர்த்தப்பட்ட உலர் மேடையில் வைக்கவும், புதிய கான்கிரீட்டை முதல் 12–24 மணி நேரம் மூடவும், பெருமழையில் சில்லு வார்க்க வேண்டாம், அடித்தள குழியில் தண்ணீரை வெளியேற்றவும்." },
+    { k: ['tile', 'vitrified', 'ceramic', 'ஓடு', 'ஃப்ளோரிங்', 'டைல்'],
+      en: "**Vitrified** — strong, low porosity: living & bedrooms (600×600 / 800×800). **Ceramic** — cheaper: bathrooms/kitchens. Always **anti-skid** for bathrooms & balconies. Buy 5–10% extra for cuts; check all boxes are the same lot/shade.",
+      ta: "**விட்ரிஃபைட்** — வலிமையானது: வரவறை/படுக்கையறை (600×600, 800×800). **சிராமிக்** — மலிவானது: குளியலறை/சமையலறை. குளியலறை/பால்கனிக்கு **ஆன்டி-ஸ்கிட்** கட்டாயம். 5–10% கூடுதல் வாங்கவும்; ஒரே லொட்/ஷேடு என சரிபார்க்கவும்." },
+    { k: ['paint', 'emulsion', 'primer', 'பெயிண்ட்', 'வர்ணம்', 'வீடு பெயிண்ட்'],
+      en: "Standard flow: putty (level) → **primer** → 2 coats **emulsion**. 1 litre covers ~110–130 sq.ft per coat. **Enamel** for wood & metal. Washable premium emulsions survive Chennai humidity better.",
+      ta: "வழக்கமான வரிசை: புட்டி → **ப்ரைமர்** → 2 கோட் **எமல்ஷன்**. ஒரு லிட்டர் ஒரு கோட்டுக்கு ~110–130 சதுர அடி. மரம் & இரும்புக்கு **எனாமல்**. வாஷபிள் எமல்ஷன் ஈரப்பதத்தை தாங்கும்." },
+    { k: ['waterproof', 'leak', 'terrace', 'நீர்ப்புகா', 'கசிவு', 'மேல்மாட'],
+      en: "Terrace: brick-bat coba or acrylic/polyurethane coating over a proper slope (1:100) — before monsoon. Bathrooms: polymer waterproofing below tiles. Budget **₹60–120/sq.ft**. Always do the ponding test on a new terrace.",
+      ta: "மேல்மாடம்: சரிவுடன் (1:100) brick-bat coba அல்லது அக்ரிலிக்/பாலியுரிதீன் — மழைக்கு முன். குளியலறை: ஓடுக்கு கீழே பாலிமர் நீர்ப்புகாப்பு. **₹60–120/சதுர அடி**. புதிய மேல்மாடத்தில் நீர் நிரப்பி சோதனை கட்டாயம்." },
+    { k: ['termite', 'white ant', 'கரையான்', 'எறும்பு'],
+      en: "Do **anti-termite soil treatment** at foundation & plinth stage (chlorpyrifos-based) — ~₹5k–10k for a house. Repeat if mud tubes appear on walls. Treat wooden frames before fixing.",
+      ta: "அடித்தள & plinth நிலையில் **கரையான் மருந்து** (குளோர்பைரிஃபாஸ்) — ~₹5–10 ஆயிரம். சுவரில் சேற்று குழாய் தென்பட்டால் மீண்டும் செய்யவும். மர ஜன்னல்/கதவை பொருத்தும் முன் மருந்து தடவவும்." },
+    { k: ['rmc', 'ready mix', 'ready-mix', 'site mix', 'ரெடி மிக்ஸ்'],
+      en: "**RMC** gives consistent designed concrete — best for slabs; needs road access for the pump (~₹5–8k extra). Site mix is cheaper & fine for footings/plinth if batching is disciplined — measure, don't eyeball.",
+      ta: "**RMC** சீரான தரமான கான்கிரீட் — சில்லுக்கு சிறந்தது; பம்புக்கு வாகன வசதி வேண்டும் (~₹5–8 ஆயிரம் கூடுதல்). அளவு துல்லியமாக இருந்தால் அடித்தளத்திற்கு சைட் மிக்ஸ் போதும்." },
+    { k: ['turnkey', 'labour contract', 'labour only', 'package type', 'ஒப்பந்த வகை', 'லேபர்', 'துர்ன்கீ'],
+      en: "**Turnkey** — builder handles materials + labour: Chennai **₹1,550–2,500/sq.ft**. **Labour-only** — you buy materials, pay **₹350–450/sq.ft** for labour: cheaper but needs your time & knowledge. The Builders tab lists 32 real Chennai firms with rates.",
+      ta: "**துர்ன்கீ** — பில்டர் பொருள் + வேலையாட்கள்: சென்னையில் **₹1,550–2,500/சதுர அடி**. **லேபர் மட்டும்** — பொருட்கள் நீங்கள், வேலைக்கு **₹350–450/சதுர அடி**: செலவு குறைவு ஆனால் உங்கள் நேரம் தேவை. Builders தாவலில் 32 உண்மையான சென்னை நிறுவனங்கள்." },
+    { k: ['verify builder', 'choose builder', 'check builder', 'builder fraud', 'trust builder', 'பில்டர் தேர்வு', 'நம்பக', 'பில்டர் ஏமாற்ற'],
+      en: "Checklist: visit 2–3 completed projects & talk to owners; written agreement with material specs & stage payments; advance <10%; retention 5–10% till handover; never pay cash without receipt; search the builder's name + 'review' online.",
+      ta: "சரிபார்ப்பு: 2–3 முடிந்த திட்டங்களுக்கு சென்று உரிமையாளர்களிடம் பேசுங்கள்; பொருள் விவரம் + நிலைவாரி பணம் உள்ள எழுத்துப்படி; முன்பணம் <10%; ஒப்படைப்பு வரை 5–10% நிறுத்தி வைக்கவும்; ரசீது இல்லாமல் பணம் கொடுக்க வேண்டாம்." }
+  ];
+
+  var AI_CATS = [
+    { words: ['cement', 'சிமெண்ட'], cat: 'cement' },
+    { words: ['steel', 'iron', 'tmt', 'sari', 'இரும்பு', 'ஸ்டீல்'], cat: 'steel' },
+    { words: ['sand', 'மணல்'], cat: 'sand' },
+    { words: ['jelly', 'aggregate', 'gravel', 'ஜெல்லி', 'கூழாங்கல்'], cat: 'aggregates' },
+    { words: ['brick', 'block', 'aac', 'செங்கல்', 'பிளாக்'], cat: 'bricks-blocks' },
+    { words: ['tile', 'டைல்', 'ஓடு'], cat: 'tiles' },
+    { words: ['paint', 'பெயிண்ட்', 'வர்ணம்'], cat: 'paint' },
+    { words: ['plumb', 'pipe', 'குழாய்'], cat: 'plumbing' }
+  ];
+  var AI_PRICE_WORDS = ['price', 'rate', 'cost', 'how much', 'today', 'current', 'விலை', 'எவ்வளவு', 'இன்று'];
+
+  function aiAnswer(qRaw, mats, builders, stores) {
+    var q = ' ' + qRaw.toLowerCase().replace(/[.,?!;:'"()\[\]]/g, ' ').replace(/\s+/g, ' ') + ' ';
+    var lang = /[\u0B80-\u0BFF]/.test(qRaw) ? 'ta' : state.lang;
+    var L = function (en, ta) { return lang === 'ta' ? ta : en; };
+    var has = function (arr) { for (var i = 0; i < arr.length; i++) if (q.indexOf(arr[i]) >= 0) return true; return false; };
+    var wc = q.trim() ? q.trim().split(' ').length : 0;
+
+    // greeting
+    if (['hi ', 'hello', 'hey ', 'hai ', 'vanakkam', 'வணக்கம்', 'good morning', 'good evening'].some(function (w) { return q.indexOf(w) === 1; })) {
+      return { text: L('Vanakkam! 👋 Ask me anything about construction — prices, builders, EMI, thumb rules, approvals, vastu…', 'வணக்கம்! 👋 கட்டுமானம் பற்றி எதையும் கேளுங்கள் — விலைகள், பில்டர்கள், EMI, தம்புல் ரூல், ஒப்புதல், வாஸ்து…') };
+    }
+
+    // material price lookup
+    var catHit = null;
+    AI_CATS.forEach(function (c) { if (!catHit && has(c.words)) catHit = c; });
+    if (catHit && (has(AI_PRICE_WORDS) || wc <= 3)) {
+      var list = (mats || []).filter(function (m) { return m.category === catHit.cat; });
+      if (list.length) {
+        var lines = list.slice(0, 4).map(function (m) {
+          var nm = lang === 'ta' ? m.name_ta : m.name;
+          var arrow = m.change_pct > 0 ? '▲' : (m.change_pct < 0 ? '▼' : '—');
+          return '**' + nm + '** — ' + fmt(m.price_avg) + ' / ' + (lang === 'ta' ? m.unit_ta : m.unit) +
+            '  (' + fmt(m.price_low) + '–' + fmt(m.price_high) + ', ' + arrow + Math.abs(m.change_pct) + '%)';
+        }).join('\n');
+        var tip = catHit.cat === 'cement' ? '\n\n' + L('Thumb rule: ~0.4 bags per sq.ft for a standard RCC home.', 'தம்புல் ரூல்: ஒரு சதுர அடிக்கு ~0.4 மூட்டை.')
+          : catHit.cat === 'steel' ? '\n\n' + L('Thumb rule: 3.5–4 kg per sq.ft of built-up area.', 'தம்புல் ரூல்: ஒரு சதுர அடிக்கு 3.5–4 கிலோ.')
+          : '';
+        return {
+          text: L('Current average rates (Sep 2026 update):\n', 'தற்போதைய சராசரி விலைகள் (செப். 2026):\n') + lines + tip + '\n\n' + L('Verify with your dealer before ordering.', 'ஆர்டர் செய்யும் முன் டீலரிடம் உறுதிப்படுத்தவும்.'),
+          acts: [{ label: t('ai_open_materials'), hash: '#/materials' }]
+        };
+      }
+    }
+
+    // builders
+    if (has(['builder', 'contractor', 'construction company', 'construction firm', 'பில்டர்', 'ஒப்பந்ததாரர்'])) {
+      var pool = (builders || []).filter(function (b) { return b.city === 'Chennai' && !b.sample; });
+      var withRate = pool.filter(function (b) { return b.rate; });
+      var cheap = has(['cheap', 'cheapest', 'low', 'மலிவு', 'மலிவான', 'குறைந்த விலை']);
+      var best = has(['best', 'top', 'good', 'சிறந்த', 'நல்ல']);
+      var sorted = cheap ? withRate.slice().sort(function (a, b) { return a.rate - b.rate; })
+        : best ? pool.slice().sort(function (a, b) { return (b.rating || 0) - (a.rating || 0); })
+        : withRate.slice().sort(function (a, b) { return a.rate - b.rate; });
+      if (sorted.length) {
+        var bl = sorted.slice(0, 3).map(function (b) {
+          return '**' + b.name + '** — ' + (best && b.rating ? '★' + b.rating + (b.projects != null ? ' · ' + b.projects + ' projects' : '') : '₹' + qfmt(b.rate, 0) + '/sq.ft');
+        }).join('\n');
+        return {
+          text: L('32 real Chennai-area builders are in the app (compiled from company websites & directories, Sep 2026).\n', 'ஆப்பில் 32 உண்மையான சென்னை பில்டர்கள் உள்ளனர் (நிறுவன தளங்கள் & டைரக்டரிகளிலிருந்து, செப். 2026).\n') +
+            (cheap || !best ? L('Lowest published rates:\n', 'குறைந்த விலையில் வெளியிடப்பட்டவை:\n') : L('Top rated:\n', 'சிறந்த மதிப்பீடு:\n')) + bl +
+            '\n\n' + L('Tap below for phones, websites & inclusions.', 'போன், இணையதளம் & விவரங்களுக்கு கீழே அழுத்துங்கள்.'),
+          acts: [{ label: t('ai_open_builders'), hash: '#/builders' }]
+        };
+      }
+    }
+
+    // stores
+    if (has(['store', 'shop', 'dealer', 'where to buy', 'கடை', 'எங்கே வாங்க'])) {
+      var cities = [];
+      (stores || []).forEach(function (s) { if (cities.indexOf(s.city) < 0) cities.push(s.city); });
+      return {
+        text: L('The app lists ' + (stores || []).length + ' building-material stores across ' + cities.length + ' TN cities: ' + cities.join(', ') + '. Open the Stores tab to browse by city.', 'ஆப்பில் ' + cities.length + ' நகரங்களில் ' + (stores || []).length + ' கட்டுமான பொருள் கடைகள் உள்ளன: ' + cities.join(', ') + '. நகரவாரியாக பார்க்க Stores தாவலை திறக்கவும்.'),
+        acts: [{ label: t('ai_open_stores'), hash: '#/stores' }]
+      };
+    }
+
+    // EMI
+    if (has(['emi', 'loan', 'home loan', 'கடா', 'தவணை'])) {
+      var lm = qRaw.match(/(\d+(?:\.\d+)?)\s*(?:l\b|lakhs?|லட்சம்|லட்ச)/i);
+      if (lm) {
+        var costL = +lm[1], costV = costL * 100000;
+        var dpp = state.loan.dp || 20, rte = state.loan.rate || 8.5, yrs = state.loan.years || 20;
+        var loanV = costV * (1 - dpp / 100), rr = rte / 1200, nn = yrs * 12, ff = Math.pow(1 + rr, nn);
+        var emiV = loanV * rr * ff / (ff - 1);
+        return {
+          text: L('For a ₹' + costL + 'L home at ' + dpp + '% down, ' + rte + '% p.a., ' + yrs + '-yr tenure:\n**Loan:** ' + fmt(Math.round(loanV)) + '\n**EMI:** ' + fmt(Math.round(emiV)) + '/month\n**Total interest:** ' + fmt(Math.round(emiV * nn - loanV)) + '\n\nPrepay even ₹1L early and you save ~₹3.6L interest — the Loan calculator shows full prepayment math.',
+            '₹' + costL + 'L வீட்டிற்கு ' + dpp + '% முன்பணம், ' + rte + '% வட்டி, ' + yrs + ' ஆண்டு காலம்:\n**கடா:** ' + fmt(Math.round(loanV)) + '\n**EMI:** ' + fmt(Math.round(emiV)) + '/மாதம்\n**மொத்த வட்டி:** ' + fmt(Math.round(emiV * nn - loanV)) + '\n\nசீக்கிரம் ₹1L முன்செலுத்தினால் ~₹3.6L வட்டி சேமிப்பு — முழு விவரம் Loan கால்குலேட்டரில்.'),
+          acts: [{ label: t('ai_open_calc'), hash: '#/calc' }]
+        };
+      }
+      return {
+        text: L('EMI = P × r × (1+r)^n ÷ ((1+r)^n − 1), where r = rate/1200 and n = months. Example: ₹24L loan @ 8.5% for 20 yrs → **₹20,828/month**. Tell me "EMI for 40 lakhs" for a quick number, or open the Loan calculator for full prepayment analysis.', 'EMI = P × r × (1+r)^n ÷ ((1+r)^n − 1), r = வட்டி/1200, n = மாதங்கள். உதா: ₹24L கடா @ 8.5%, 20 ஆண்டு → **₹20,828/மாதம்**. "40 லட்சத்திற்கு EMI" என கேளுங்கள், அல்லது முழு முன்செலுத்தல் கணக்குக்கு Loan கால்குலேட்டரைத் திறங்கள்.'),
+        acts: [{ label: t('ai_open_calc'), hash: '#/calc' }]
+      };
+    }
+
+    // build cost estimate
+    if (has(['sqft', 'sq ft', 'sq. ft', 'square feet', 'square foot', 'சதுர அடி']) &&
+        !catHit && has(['build', 'house', 'home', 'construct', 'cost', 'price', 'estimate', 'கட்ட', 'வீடு', 'செலவு', 'விலை', 'எவ்வளவு'])) {
+      var anm = qRaw.match(/(\d{3,5})/);
+      if (anm && !has(['bag', 'bags', 'kg', 'மூட்டை', 'கிலோ'])) {
+        var area = Math.min(+anm[1], 100000);
+        var flm = qRaw.match(/g\s*\+\s*(\d)/i);
+        var floors = flm ? +flm[1] + 1 : 1;
+        var totA = area * floors;
+        var rtm = qRaw.match(/(?:@|rate\s*|₹\s*)(1[5-9]\d{2}|2[0-5]\d{2})/i);
+        if (rtm) {
+          var c = +rtm[1] * totA;
+          return { text: L('At ₹' + rtm[1] + '/sq.ft, a ' + totA.toLocaleString('en-IN') + ' sq.ft (' + (flm ? flm[0].toUpperCase() : 'Ground') + ') home costs **' + fmt(c) + '** — plus ~15–25% site extras (compound wall, EB, borewell, sump, septic, approvals). The Builder-rate mode gives the full budget.', '₹' + rtm[1] + '/சதுர அடியில், ' + totA.toLocaleString('en-IN') + ' சதுர அடி வீட்டுக்கு **' + fmt(c) + '** — மேலும் ~15–25% தள செலவுகள் (சுற்றுசுவர், EB, கிணறு, சம்ப், செப்டிக், ஒப்புதல்). முழு பட்ஜெட் Builder-rate முறையில்.'), acts: [{ label: t('ai_open_calc'), hash: '#/calc' }] };
+        }
+        return {
+          text: L('Chennai turnkey rates run **₹1,800–2,500/sq.ft**, so a ' + totA.toLocaleString('en-IN') + ' sq.ft ' + (flm ? flm[0].toUpperCase() : 'ground-only') + ' home costs roughly **' + fmt(1800 * totA) + ' – ' + fmt(2500 * totA) + '**.\n\nAdd ~15–25% for site extras (compound wall, EB, borewell, sump, septic, approvals). Use the Builder-rate mode with your exact quote for the full budget.',
+            'சென்னை துர்ன்கீ விகிதம் **₹1,800–2,500/சதுர அடி** — ' + totA.toLocaleString('en-IN') + ' சதுர அடி வீட்டுக்கு தோராயமாக **' + fmt(1800 * totA) + ' – ' + fmt(2500 * totA) + '**.\n\nதள செலவுகளுக்கு ~15–25% கூடுதல். உங்கள் சரியான விகிதத்துடன் Builder-rate முறையை பயன்படுத்துங்கள்.'),
+          acts: [{ label: t('ai_open_calc'), hash: '#/calc' }]
+        };
+      }
+    }
+
+    // knowledge base
+    var bestKb = null, bestScore = 0;
+    AI_KB.forEach(function (e) {
+      var s = 0;
+      e.k.forEach(function (w) { if (q.indexOf(w) >= 0) s += w.length > 6 ? 2 : 1; });
+      if (s > bestScore) { bestScore = s; bestKb = e; }
+    });
+    if (bestKb) return { text: L(bestKb.en, bestKb.ta) };
+
+    return { text: t('ai_fallback'), acts: [
+      { label: t('ai_open_materials'), hash: '#/materials' },
+      { label: t('ai_open_builders'), hash: '#/builders' },
+      { label: t('ai_open_calc'), hash: '#/calc' }
+    ] };
+  }
+
+  function chatFmt(s) {
+    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+  }
+
+  function chatRender() {
+    var body = document.getElementById('chatBody');
+    if (!body) return;
+    body.innerHTML = state.chat.msgs.map(function (m) {
+      return '<div class="msg ' + (m.r === 'u' ? 'msgU' : 'msgA') + '"><div class="bubble">' + m.h + '</div>' +
+        (m.a && m.a.length ? '<div class="msgActs">' + m.a.map(function (x) {
+          return '<button class="chip" data-action="chat-act" data-hash="' + esc(x.hash) + '">' + esc(x.label) + '</button>';
+        }).join('') + '</div>' : '') + '</div>';
+    }).join('');
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function chatSuggRender() {
+    var el = document.getElementById('chatSugg');
+    if (!el) return;
+    var ta = state.lang === 'ta';
+    var sugg = ta
+      ? [['இன்றைய சிமெண்ட் விலை', 'சிமெண்ட் விலை என்ன'], ['மலிவான சென்னை பில்டர்கள்', 'சென்னையில் மலிவான பில்டர்கள்'], ['சதுர அடிக்கு இரும்பு விலை', 'சதுர அடிக்கு இரும்பு விலை'], ['30 லட்சம் கடா EMI', '30 லட்சம் கடா EMI']]
+      : [['Cement price today', 'cement price today'], ['Cheapest Chennai builders', 'cheapest builders in chennai'], ['How much steel per sqft', 'how much steel per sqft'], ['EMI for 30 lakhs', 'emi for 30 lakhs']];
+    el.innerHTML = sugg.map(function (s) {
+      return '<button class="chip" data-action="chat-sugg" data-q="' + esc(s[1]) + '">' + esc(s[0]) + '</button>';
+    }).join('');
+  }
+
+  function chatSend(qRaw) {
+    var q = (qRaw || '').trim();
+    if (!q) return;
+    state.chat.msgs.push({ r: 'u', h: chatFmt(q) });
+    if (state.chat.msgs.length > 40) state.chat.msgs.splice(0, state.chat.msgs.length - 40);
+    persistSet('br_chat', state.chat.msgs);
+    document.getElementById('chatSugg').style.display = 'none';
+    chatRender();
+    state.chat.msgs.push({ r: 'a', h: '<span class="dots"><i></i><i></i><i></i></span>' });
+    chatRender();
+    Promise.all([api('/api/materials'), api('/api/builders'), api('/api/stores')]).then(function (res) {
+      var ans;
+      try { ans = aiAnswer(q, (res[0] && res[0].materials) || [], (res[1] && res[1].builders) || [], (res[2] && res[2].stores) || []); }
+      catch (e) { ans = { text: t('ai_fallback') }; }
+      state.chat.msgs.pop();
+      state.chat.msgs.push({ r: 'a', h: chatFmt(ans.text), a: ans.acts || null });
+      persistSet('br_chat', state.chat.msgs);
+      chatRender();
+    }).catch(function () {
+      state.chat.msgs.pop();
+      state.chat.msgs.push({ r: 'a', h: chatFmt(t('ai_fallback')) });
+      chatRender();
+    });
+  }
+
+  function chatOpen() {
+    document.getElementById('chatOverlay').hidden = false;
+    document.getElementById('fabBtn').hidden = true;
+    if (!state.chat.msgs.length) {
+      state.chat.msgs.push({ r: 'a', h: chatFmt(t('ai_greeting')) });
+      persistSet('br_chat', state.chat.msgs);
+    }
+    document.getElementById('chatSugg').style.display = '';
+    chatSuggRender();
+    chatRender();
+  }
+
+  function chatClose() {
+    document.getElementById('chatOverlay').hidden = true;
+    document.getElementById('fabBtn').hidden = false;
+  }
+
+  document.getElementById('chatForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var inp = document.getElementById('chatInput');
+    chatSend(inp.value);
+    inp.value = '';
+  });
 
   /* ---------------- routing ---------------- */
   function parseHash() {
@@ -1503,6 +1815,19 @@
         el.classList.toggle('faved');
         if (state.route.view === 'saved') render();
         break;
+      case 'chat-open':
+        chatOpen();
+        break;
+      case 'chat-close':
+        chatClose();
+        break;
+      case 'chat-sugg':
+        chatSend(el.dataset.q || '');
+        break;
+      case 'chat-act':
+        chatClose();
+        go(el.dataset.hash);
+        break;
       case 'about':
         document.getElementById('sheetBackdrop').hidden = false;
         document.getElementById('aboutSheet').hidden = false;
@@ -1610,6 +1935,9 @@
   function applyI18n() {
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      el.placeholder = t(el.dataset.i18nPh);
     });
     document.documentElement.lang = state.lang === 'ta' ? 'ta' : 'en';
     document.getElementById('langToggle').textContent = state.lang === 'ta' ? 'A' : 'அ';
