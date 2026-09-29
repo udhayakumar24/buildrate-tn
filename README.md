@@ -21,6 +21,7 @@ python3 app.py
 | 🔍 Search & filter | By material, store, city, or category — Tamil names searchable too |
 | 🇮🇳 Bilingual UI | One tap switches the entire interface between English and Tamil |
 | ❤️ Favourites | Save materials & stores (persists in the browser) |
+| 🤖 **BuildRate AI** (inbuilt, offline) | Ask anything about construction — answers from live app data (material prices with trends, cheapest/best Chennai builders, store cities, EMI & build-cost math) plus a 25-topic bilingual knowledge base (cement/steel/sand thumb rules, curing, concrete grades, bricks vs AAC, foundations, CMDA/DTCP approvals, FSI, vastu, borewell, sump/septic, tiles, paint, waterproofing, termite, RMC, contract types, builder-verification checklist). Tamil questions get Tamil answers |
 | 🧮 Construction calculator | 3 modes: **Material estimate** (area, quality tier, floors, wall material) · **Builder rate** — enter the builder's ₹/sq.ft, pick Ground/G+1/G+2/G+3 and per-floor area → total construction cost **plus a keep-aside budget for compound wall, EB connection, borewell, water sump, septic tank, plan approval, site works + 5% contingency**, with % of construction and total project cost · **Home Loan EMI** with free-entry dp/tenure and a (month, amount) prepayment schedule, year-wise amortization |
 | 🏗️ Builders directory | **32 real Chennai-area builders** (compiled from company websites, Justdial & Sulekha, Sep 2026) with package rates ₹1,550–₹2,500/sq.ft, phones, websites, inclusions + 9 sample listings in other TN cities — filter by city & package type |
 
