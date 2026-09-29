@@ -63,15 +63,16 @@
     var h = persistGet('br_chat', null);
     if (Array.isArray(h)) state.chat.msgs = h.slice(-40);
   })();
-  state.llm = { p: 'gemini', key: '', model: '', url: '' };
+  state.llm = { p: 'free', key: '', model: '', url: '' };
   (function initLlm() {
     var l = persistGet('br_llm', null);
     if (l && typeof l === 'object') {
-      state.llm.p = ['gemini', 'openrouter', 'groq', 'custom'].indexOf(l.p) >= 0 ? l.p : 'gemini';
+      state.llm.p = ['free', 'gemini', 'openrouter', 'groq', 'custom'].indexOf(l.p) >= 0 ? l.p : 'free';
       state.llm.key = typeof l.key === 'string' ? l.key : '';
       state.llm.model = typeof l.model === 'string' ? l.model : '';
       state.llm.url = typeof l.url === 'string' ? l.url : '';
     }
+    if (!state.llm.key && state.llm.p !== 'free' && state.llm.p !== 'custom') state.llm.p = 'free';
   })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
@@ -260,22 +261,24 @@
       ai_title: 'Ask BuildRate AI',
       ai_sub: 'Construction help · works offline',
       ai_placeholder: 'Ask about construction…',
-      ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — ask me about material prices, Chennai builders, EMI & prepayment, thumb rules (cement bags, steel kg, sand), vastu, approvals, waterproofing… anything about building a home in Tamil Nadu.",
+      ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — now ONLINE, so ask me anything like ChatGPT 🤖 For construction questions I use this app's live price data. (Free online mode can be slow at busy times — add your own free Gemini key via ⚙ for faster replies.)",
       ai_fallback: "I don't know that one offline. I can help with material prices, Chennai builders, EMI & prepayment, cost estimates (try \"3BHK G+1 cost breakdown\"), thumb rules, approvals, vastu… — or tap ⚙ and add a free API key to enable Full AI, which answers anything.",
       ai_open_materials: 'Open Materials',
       ai_open_builders: 'Open Builders',
       ai_open_stores: 'Open Stores',
       ai_open_calc: 'Open Calculator',
+      ai_mode_online: 'Online AI',
       ai_mode_full: 'Full AI',
       ai_mode_off: 'Offline',
+      ai_llm_keytip: '(add your own free key in ⚙ for unlimited replies)',
       ai_cfg_title: 'Full AI mode (optional)',
-      ai_cfg_desc: 'Paste a free API key and I can answer ANY question — not just construction. Google Gemini keys are free (aistudio.google.com/apikey, Google account needed). Your key stays only on this device and is sent only to the provider you choose below.',
+      ai_cfg_desc: 'Default: free online AI (no key needed) — answers anything, but may be slow or rate-limited at busy times. For fast, unlimited replies paste your own free Google Gemini key (aistudio.google.com/apikey — Google account needed). Your key stays only on this device and is sent only to the provider you choose.',
       ai_cfg_key: 'API key',
       ai_cfg_model: 'Model (optional)',
       ai_cfg_url: 'API base URL',
       ai_llm_save: 'Save',
       ai_llm_clear: 'Remove key',
-      ai_llm_err: 'Full AI unavailable (check key / network) — offline answer:'
+      ai_llm_err: 'Online AI unavailable (busy / no internet) — offline answer:'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -450,14 +453,16 @@
       ai_title: 'BuildRate AI',
       ai_sub: 'கட்டுமான உதவி · ஆஃப்லைன்',
       ai_placeholder: 'கட்டுமானம் பற்றி கேளுங்கள்…',
-      ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், தம்புல் ரூல் (சிமெண்ட் மூட்டை, இரும்பு கிலோ, மணல்), வாஸ்து, ஒப்புதல், நீர்ப்புகாப்பு — தமிழ்நாட்டில் வீடு கட்டுவது பற்றி எதையும் கேளுங்கள்.',
+      ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — இப்போது ஆன்லைன்! ChatGPT மாதிரி எதையும் கேளுங்கள் 🤖 கட்டுமான கேள்விகளுக்கு ஆப்பின் நேரடி விலை தரவை பயன்படுத்துவேன். (இலவச ஆன்லைன் முறை சில நேரம் மெதுவாக இருக்கலாம் — ⚙-இல் இலவச Gemini கீ சேர்த்தால் வேகமாக இருக்கும்.)',
       ai_fallback: 'இதற்கு ஆஃப்லைனில் எனக்குத் தெரியாது. பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், செலவு மதிப்பீடு ("3BHK G+1 செலவு"), தம்புல் ரூல், ஒப்புதல், வாஸ்து பற்றி கேளுங்கள் — அல்லது ⚙ அழுத்தி இலவச API கீ சேர்த்து முழு AI முறையை இயக்குங்கள் (எதற்கும் பதில் தரும்).',
       ai_open_materials: 'பொருட்களைத் திற',
       ai_open_builders: 'பில்டர்களைத் திற',
       ai_open_stores: 'கடைகளைத் திற',
       ai_open_calc: 'கால்குலேட்டரைத் திற',
+      ai_mode_online: 'ஆன்லைன் AI',
       ai_mode_full: 'முழு AI',
       ai_mode_off: 'ஆஃப்லைன்',
+      ai_llm_keytip: '(வேகமான பதிலுக்கு ⚙-இல் இலவச கீ சேர்க்கலாம்)',
       ai_cfg_title: 'முழு AI முறை (விருப்பம்)',
       ai_cfg_desc: 'இலவச API கீவை ஒட்டினால் எந்தக் கேள்விக்கும் பதில் தர முடியும் — கட்டுமானம் மட்டும் அல்ல. Google Gemini கீ இலவசம் (aistudio.google.com/apikey, Google கணக்கு தேவை). உங்கள் கீ இந்த சாதனத்தில் மட்டுமே சேமிக்கப்படும்.',
       ai_cfg_key: 'API கீ',
@@ -465,7 +470,7 @@
       ai_cfg_url: 'API அடிப்படை URL',
       ai_llm_save: 'சேமி',
       ai_llm_clear: 'கீவை நீக்கு',
-      ai_llm_err: 'முழு AI கிடைக்கவில்லை (கீ/இணையம் சரிபார்க்கவும்) — ஆஃப்லைன் பதில்:'
+      ai_llm_err: 'ஆன்லைன் AI கிடைக்கவில்லை (நெருக்கடி / இணையம் இல்லை) — ஆஃப்லைன் பதில்:'
     }
   };
   function t(key, n, m) {
@@ -753,7 +758,7 @@
     // BHK / duplex home cost with breakdown
     var bhkM = qRaw.match(/([1-5])\s*-?\s*bhk/i);
     var dplx = /duplex|டூப்ளக்ஸ்|டூப்ளெக்ஸ்/.test(qRaw.toLowerCase());
-    if ((bhkM || dplx) && has(['cost', 'price', 'how much', 'budget', 'estimate', 'build', 'செலவு', 'விலை', 'எவ்வளவு', 'கட்ட'])) {
+    if ((bhkM || dplx) && !has(['vastu', 'vasthu', 'வாஸ்து', 'floor plan', 'plan only'])) {
       var bhk = bhkM ? +bhkM[1] : 3;
       var BHK_AREA = { 1: [450, 650], 2: [750, 1100], 3: [1150, 1600], 4: [1600, 2200], 5: [2000, 2600] };
       var flm2 = qRaw.match(/g\s*\+\s*(\d)/i);
@@ -832,10 +837,15 @@
 
   /* ---- Full AI mode (cloud LLM, user-provided key) ---- */
   var LLM_PRESETS = {
+    free: { url: 'https://text.pollinations.ai/openai', model: 'openai' },
     gemini: { url: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash' },
     openrouter: { url: 'https://openrouter.ai/api/v1', model: 'meta-llama/llama-3.3-70b-instruct:free' },
     groq: { url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile' }
   };
+
+  function llmAvailable() {
+    return state.llm.p === 'free' || !!(state.llm && state.llm.key);
+  }
 
   function llmSystem(mats, builders) {
     var matLines = (mats || []).slice(0, 31).map(function (m) {
@@ -858,7 +868,7 @@
 
   function llmChat(q, mats, builders) {
     var cfg = state.llm;
-    var preset = LLM_PRESETS[cfg.p] || LLM_PRESETS.gemini;
+    var preset = LLM_PRESETS[cfg.p] || LLM_PRESETS.free;
     var model = (cfg.model || preset.model).trim();
     var base = (cfg.p === 'custom' && cfg.url ? cfg.url : preset.url).replace(/\/+$/, '');
     var sys = llmSystem(mats, builders);
@@ -880,35 +890,55 @@
         return txt;
       });
     }
-    // OpenAI-compatible (OpenRouter / Groq / custom)
+    // OpenAI-compatible (free online / OpenRouter / Groq / custom)
     var msgs = [{ role: 'system', content: sys }]
       .concat(hist.map(function (m) { return { role: m.r === 'u' ? 'user' : 'assistant', content: m.t }; }))
       .concat([{ role: 'user', content: q }]);
-    return fetch(base + '/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key.trim() },
-      body: JSON.stringify({ model: model, temperature: 0.4, max_tokens: 1400, messages: msgs })
-    }).then(function (r) { return r.json(); }).then(function (j) {
-      if (j.error) throw new Error(j.error.message || 'API error');
-      var txt = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-      if (!txt) throw new Error('empty response');
-      return txt;
-    });
+    var endpoint = cfg.p === 'free' ? preset.url : base + '/chat/completions';
+    var headers = { 'Content-Type': 'application/json' };
+    if (cfg.p !== 'free') headers['Authorization'] = 'Bearer ' + cfg.key.trim();
+    var body = JSON.stringify({ model: model, temperature: 0.4, max_tokens: 1400, messages: msgs });
+    function attempt(n) {
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, cfg.p === 'free' ? 45000 : 40000) : null;
+      return fetch(endpoint, {
+        method: 'POST', headers: headers, signal: ctrl ? ctrl.signal : undefined, body: body
+      }).then(function (r) {
+        if (cfg.p === 'free' && (r.status === 402 || r.status === 429 || r.status >= 500) && n < 2) {
+          // free tier is momentarily busy — wait and retry once
+          return new Promise(function (res) { setTimeout(res, 7000); }).then(function () {
+            if (timer) clearTimeout(timer);
+            return attempt(n + 1);
+          });
+        }
+        return r.json();
+      }).then(function (j) {
+        if (timer) clearTimeout(timer);
+        if (j.error) throw new Error(j.error.message || 'API error');
+        var txt = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+        if (!txt) throw new Error('empty response');
+        return txt;
+      }).catch(function (e) {
+        if (timer) clearTimeout(timer);
+        throw e;
+      });
+    }
+    return attempt(1);
   }
 
   function aiStatusRender() {
     var el = document.getElementById('aiStatus');
     if (!el) return;
-    var on = !!(state.llm && state.llm.key);
+    var on = llmAvailable();
     el.className = 'aiStatus' + (on ? ' on' : '');
-    el.textContent = (on ? '● ' + t('ai_mode_full') : '● ' + t('ai_mode_off'));
+    el.textContent = '● ' + (on ? (state.llm.p === 'free' ? t('ai_mode_online') : t('ai_mode_full')) : t('ai_mode_off'));
   }
 
   function aiCfgRender() {
     var panel = document.getElementById('aiCfg');
     if (!panel) return;
-    var provs = [['gemini', 'Google Gemini'], ['openrouter', 'OpenRouter'], ['groq', 'Groq'], ['custom', 'Custom (OpenAI-compatible)']];
-    var preset = LLM_PRESETS[state.llm.p] || LLM_PRESETS.gemini;
+    var provs = [['free', 'Online (free, no key)'], ['gemini', 'Google Gemini'], ['openrouter', 'OpenRouter'], ['groq', 'Groq'], ['custom', 'Custom (OpenAI-compatible)']];
+    var preset = LLM_PRESETS[state.llm.p] || LLM_PRESETS.free;
     panel.innerHTML =
       '<div class="aiCfgCard">' +
       '<h3>⚙️ ' + esc(t('ai_cfg_title')) + '</h3>' +
@@ -990,12 +1020,12 @@
         persistSet('br_chat', state.chat.msgs);
         chatRender();
       }
-      if (state.llm && state.llm.key) {
+      if (llmAvailable()) {
         llmChat(q, mats, builders).then(function (txt) {
           finish({ text: txt });
         }).catch(function () {
           var a = offline();
-          finish({ text: '⚠️ ' + t('ai_llm_err') + '\n\n' + a.text, acts: a.acts });
+          finish({ text: '⚠️ ' + t('ai_llm_err') + (state.llm.p === 'free' ? ' ' + t('ai_llm_keytip') : '') + '\n\n' + a.text, acts: a.acts });
         });
       } else {
         finish(offline());
@@ -2028,7 +2058,7 @@
         break;
       case 'llm-prov': {
         var key = document.getElementById('llmKey') ? document.getElementById('llmKey').value : '';
-        state.llm.p = ['gemini', 'openrouter', 'groq', 'custom'].indexOf(el.dataset.val) >= 0 ? el.dataset.val : 'gemini';
+        state.llm.p = ['free', 'gemini', 'openrouter', 'groq', 'custom'].indexOf(el.dataset.val) >= 0 ? el.dataset.val : 'free';
         state.llm.key = key;
         aiCfgRender();
         break;
@@ -2041,7 +2071,7 @@
         persistSet('br_llm', state.llm);
         aiStatusRender();
         document.getElementById('aiCfg').hidden = true;
-        toast(k ? 'AI: ' + t('ai_mode_full') : 'AI: ' + t('ai_mode_off'));
+        toast(state.llm.p === 'free' ? 'AI: ' + t('ai_mode_online') : (k ? 'AI: ' + t('ai_mode_full') : 'AI: ' + t('ai_mode_off')));
         break;
       }
       case 'llm-clear':
