@@ -621,3 +621,88 @@ body {
 .navitem, .matrow, .storerow, .cat, .chip, .hcard, .sellerrow, .btn, .favbtn, .backbtn, .see-all {
   touch-action: manipulation;
 }
+
+/* ---------- construction calculator ---------- */
+.ctacard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, #b45309, var(--accent));
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(180, 83, 9, .28);
+}
+.ctacard:active { transform: scale(.98); }
+.ctacard .cta-ico {
+  flex: none;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .18);
+  display: grid;
+  place-items: center;
+}
+.ctacard .cta-ico svg { width: 21px; height: 21px; stroke: #fff; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ctacard .cta-txt { flex: 1; min-width: 0; }
+.ctacard .cta-txt b { display: block; font-size: .88rem; font-weight: 800; }
+.ctacard .cta-txt span { display: block; font-size: .66rem; opacity: .85; margin-top: 2px; }
+.ctacard .cta-arrow { font-size: 1.1rem; opacity: .9; }
+
+.calcpanel { padding: 14px 16px; margin-bottom: 12px; }
+.calcpanel label.plabel {
+  display: block;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 9px;
+}
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepbtn {
+  flex: none;
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: #f6f8fb;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+.stepbtn:active { background: #e8edf3; }
+.areainput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+}
+.unitlbl { font-size: .72rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+.calcrow { padding: 11px 0 12px; border-bottom: 1px solid var(--line); }
+.calcrow:last-child { border-bottom: 0; padding-bottom: 2px; }
+.cr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.cr-name { font-size: .84rem; font-weight: 700; line-height: 1.25; }
+.cr-qty { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+.cr-cost { font-size: .88rem; font-weight: 800; white-space: nowrap; }
+.cr-bar { height: 5px; border-radius: 99px; background: #eef2f7; margin-top: 8px; overflow: hidden; }
+.cr-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--navy-3), var(--accent)); }
+
+.hero .herosplit { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.hero .herosplit strong { font-size: 1.75rem; font-weight: 800; }
+.hero .herosplit span { font-size: .78rem; opacity: .8; }

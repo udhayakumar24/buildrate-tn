@@ -632,6 +632,91 @@ body {
   touch-action: manipulation;
 }
 
+/* ---------- construction calculator ---------- */
+.ctacard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, #b45309, var(--accent));
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(180, 83, 9, .28);
+}
+.ctacard:active { transform: scale(.98); }
+.ctacard .cta-ico {
+  flex: none;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .18);
+  display: grid;
+  place-items: center;
+}
+.ctacard .cta-ico svg { width: 21px; height: 21px; stroke: #fff; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ctacard .cta-txt { flex: 1; min-width: 0; }
+.ctacard .cta-txt b { display: block; font-size: .88rem; font-weight: 800; }
+.ctacard .cta-txt span { display: block; font-size: .66rem; opacity: .85; margin-top: 2px; }
+.ctacard .cta-arrow { font-size: 1.1rem; opacity: .9; }
+
+.calcpanel { padding: 14px 16px; margin-bottom: 12px; }
+.calcpanel label.plabel {
+  display: block;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 9px;
+}
+.stepper { display: flex; align-items: center; gap: 10px; }
+.stepbtn {
+  flex: none;
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: #f6f8fb;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+.stepbtn:active { background: #e8edf3; }
+.areainput {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+}
+.unitlbl { font-size: .72rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+.calcrow { padding: 11px 0 12px; border-bottom: 1px solid var(--line); }
+.calcrow:last-child { border-bottom: 0; padding-bottom: 2px; }
+.cr-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.cr-name { font-size: .84rem; font-weight: 700; line-height: 1.25; }
+.cr-qty { font-size: .66rem; color: var(--muted); margin-top: 3px; }
+.cr-cost { font-size: .88rem; font-weight: 800; white-space: nowrap; }
+.cr-bar { height: 5px; border-radius: 99px; background: #eef2f7; margin-top: 8px; overflow: hidden; }
+.cr-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--navy-3), var(--accent)); }
+
+.hero .herosplit { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.hero .herosplit strong { font-size: 1.75rem; font-weight: 800; }
+.hero .herosplit span { font-size: .78rem; opacity: .8; }
+
 </style>
 </head>
 <body>
@@ -665,6 +750,10 @@ body {
     <button class="navitem" data-action="nav" data-route="#/stores" data-tab="stores">
       <svg viewBox="0 0 24 24"><path d="M4 7 3 11v9h5v-6h8v6h5v-9l-1-4H4z"/><path d="M4 7h16"/><path d="M9 11h6"/></svg>
       <span data-i18n="nav_stores">Stores</span>
+    </button>
+    <button class="navitem" data-action="nav" data-route="#/calc" data-tab="calc">
+      <svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 7.5h6"/><path d="M9 12h.1M12 12h.1M15 12h.1M9 15h.1M12 15h.1M15 15h.1"/><path d="M9 18h6"/></svg>
+      <span data-i18n="nav_calc">Calculator</span>
     </button>
     <button class="navitem" data-action="nav" data-route="#/saved" data-tab="saved">
       <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9-8.5C1.5 8.5 3.5 5 7 5c2 0 3.5 1 5 3 1.5-2 3-3 5-3 3.5 0 5.5 3.5 4 6.5-2 4-9 8.5-9 8.5z"/></svg>
@@ -714,8 +803,19 @@ body {
     matFilter: { q: '', cat: 'all' },
     storeFilter: { q: '', city: 'all' },
     focusSearch: false,
-    route: { view: 'home', param: null }
+    route: { view: 'home', param: null },
+    calc: null
   };
+  (function initCalc() {
+    var c = persistGet('br_calc', null);
+    if (!c || typeof c !== 'object') c = {};
+    state.calc = {
+      area: isFinite(+c.area) && +c.area >= 100 ? Math.round(+c.area) : 1000,
+      tier: ['e', 's', 'p'].indexOf(c.tier) >= 0 ? c.tier : 's',
+      floors: ['g', 'g1', 'g2'].indexOf(c.floors) >= 0 ? c.floors : 'g',
+      wall: ['red', 'aac', 'solid'].indexOf(c.wall) >= 0 ? c.wall : 'red'
+    };
+  })();
   var cache = {};
 
   /* ---------------- i18n ---------------- */
@@ -770,7 +870,43 @@ body {
       low: 'Low', high: 'High',
       error: 'Something went wrong',
       retry: 'Try again',
-      not_found: 'Not found'
+      not_found: 'Not found',
+      nav_calc: 'Calculator',
+      calc_title: 'Construction Cost Calculator',
+      builtup: 'Built-up area',
+      sqft_unit: 'sq.ft',
+      quality: 'Quality of construction',
+      economy: 'Economy',
+      standard: 'Standard',
+      premium: 'Premium',
+      floors: 'Number of floors',
+      ground: 'Ground',
+      g1: 'G+1',
+      g2: 'G+2',
+      wallmat: 'Wall material',
+      red_bricks: 'Red bricks',
+      aac_blocks: 'AAC blocks',
+      solid_blocks: 'Solid blocks',
+      est_cost: 'Estimated material cost',
+      materials_only: 'Materials only',
+      breakdown: 'Material breakdown',
+      per_sqft_rate: 'per sq.ft',
+      calc_note1: 'Thumb-rule estimate for a standard RCC home. Excludes labour, plumbing, electricals, doors, windows and approvals.',
+      calc_note2: 'For reference: typical all-in cost in Chennai (materials + labour + finishing) is ₹1,700–2,400 per sq.ft (2026 market references).',
+      rates_from: 'Rates auto-filled from this app\u2019s material prices',
+      home_cta: 'Estimate your build cost',
+      home_cta_sub: 'Cement, steel, sand & more — instant calculator',
+      u_bags: 'bags',
+      u_kg: 'kg',
+      u_units: 'units (100 cft)',
+      u_tonnes: 'tonnes',
+      u_nos: 'nos',
+      u_litres: 'litres',
+      u_sqft: 'sq.ft',
+      u_bag: 'bag',
+      u_unit: 'unit',
+      u_t: 't',
+      u_l: 'L'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -822,7 +958,43 @@ body {
       low: 'குறைந்த', high: 'அதிக',
       error: 'ஏதோ தவறு நடந்தது',
       retry: 'மீண்டும் முயற்சிக்க',
-      not_found: 'கிடைக்கவில்லை'
+      not_found: 'கிடைக்கவில்லை',
+      nav_calc: 'கணக்கீடு',
+      calc_title: 'கட்டுமான செலவு கணக்கீடு',
+      builtup: 'கட்டப்பட வேண்டிய பரப்பளவு',
+      sqft_unit: 'சதுர அடி',
+      quality: 'கட்டுமான தரம்',
+      economy: 'சாதாரணம்',
+      standard: 'நிலையான',
+      premium: 'உயர்தரம்',
+      floors: 'மாடிகளின் எண்ணிக்கை',
+      ground: 'தரை தளம்',
+      g1: 'G+1',
+      g2: 'G+2',
+      wallmat: 'சுவர் பொருள்',
+      red_bricks: 'செங்கற்கள்',
+      aac_blocks: 'AAC பிளாக்',
+      solid_blocks: 'சிமெண்ட் பிளாக்',
+      est_cost: 'மதிப்பிடப்பட்ட பொருள் செலவு',
+      materials_only: 'பொருட்கள் மட்டும்',
+      breakdown: 'பொருள் விவரம்',
+      per_sqft_rate: 'ஒரு சதுர அடிக்கு',
+      calc_note1: 'வித்திருத்த முறை (thumb-rule) அடிப்படையிலான மதிப்பீடு — நிலையான RCC வீட்டுக்கு. தொழிலாளர், குடிநீர், மின்சாரம், கதவுகள், அனுமதி கட்டணங்கள் சேர்க்கப்படவில்லை.',
+      calc_note2: 'குறிப்பு: சென்னையில் மொத்த கட்டுமான செலவு (பொருள் + தொழிலாளர் + முடித்தல்) சுமார் ₹1,700–2,400 / சதுர அடி (2026 சந்தை தகவல்).',
+      rates_from: 'விகிதங்கள் இந்த செயலியின் பொருள் விலைகளிலிருந்து தானாக எடுக்கப்படுகின்றன',
+      home_cta: 'உங்கள் வீட்டு செலவை கணக்கிடுங்கள்',
+      home_cta_sub: 'சிமெண்ட், இரும்பு, மணல் மற்றும் பல — உடனடி கணக்கீடு',
+      u_bags: 'மூட்டைகள்',
+      u_kg: 'கிலோ',
+      u_units: 'யூனிட் (100 கன அடி)',
+      u_tonnes: 'டன்',
+      u_nos: 'எண்',
+      u_litres: 'லிட்டர்',
+      u_sqft: 'சதுர அடி',
+      u_bag: 'மூட்டை',
+      u_unit: 'யூனிட்',
+      u_t: 'டன்',
+      u_l: 'லி'
     }
   };
   function t(key, n, m) {
@@ -856,7 +1028,8 @@ body {
     store: ico('<path d="M4 7 3 11v9h5v-6h8v6h5v-9l-1-4H4z"/><path d="M4 7h16"/><path d="M9 11h6"/>'),
     box: ico('<path d="M21 8 12 3 3 8l9 5 9-5v8l-9 5-9-5V8"/>'),
     chart: ico('<path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 14 4-4 3 3 5-6"/>'),
-    ruppee: ico('<path d="M7 4h10"/><path d="M7 8.5h10"/><path d="M7 4c6 0 7 4.5 0 4.5 6 0 8 4.5-1 4.5l6 6.5"/>')
+    ruppee: ico('<path d="M7 4h10"/><path d="M7 8.5h10"/><path d="M7 4c6 0 7 4.5 0 4.5 6 0 8 4.5-1 4.5l6 6.5"/>'),
+    calc: ico('<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 7.5h6"/><path d="M9 12h.1M12 12h.1M15 12h.1M9 15h.1M12 15h.1M15 15h.1"/><path d="M9 18h6"/>')
   };
 
   /* ---------------- helpers ---------------- */
@@ -939,7 +1112,7 @@ body {
     if (!parts.length) return { view: 'home', param: null };
     if (parts[0] === 'material' && parts[1]) return { view: 'material', param: decodeURIComponent(parts[1]) };
     if (parts[0] === 'store' && parts[1]) return { view: 'store', param: decodeURIComponent(parts[1]) };
-    if (['home', 'materials', 'stores', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
+    if (['home', 'materials', 'stores', 'calc', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
     return { view: 'home', param: null };
   }
   var lastSetHash = null;
@@ -962,7 +1135,7 @@ body {
     return { view: s || 'home', param: null };
   }
 
-  var TAB_FOR = { home: 'home', materials: 'materials', material: 'materials', stores: 'stores', store: 'stores', saved: 'saved' };
+  var TAB_FOR = { home: 'home', materials: 'materials', material: 'materials', stores: 'stores', store: 'stores', calc: 'calc', saved: 'saved' };
   function setActiveTab(view) {
     var tab = TAB_FOR[view] || 'home';
     document.querySelectorAll('.navitem').forEach(function (b) {
@@ -1009,6 +1182,10 @@ body {
         '<div class="greeting"><h2>' + esc(t('greeting')) + ' 🙏</h2><p>' + esc(localDate()) + '</p></div>' +
         '<div class="searchbar" data-action="nav" data-route="#/materials" data-focus="1" role="button" tabindex="0">' + ICONS.search +
         '<input readonly placeholder="' + esc(t('search_materials')) + '" aria-label="search"></div>' +
+        '<button class="ctacard" data-action="nav" data-route="#/calc">' +
+        '<span class="cta-ico">' + ICONS.calc + '</span>' +
+        '<span class="cta-txt"><b>' + esc(t('home_cta')) + '</b><span>' + esc(t('home_cta_sub')) + '</span></span>' +
+        '<span class="cta-arrow">→</span></button>' +
         '<div class="section"><div class="section-head"><h2>' + esc(t('browse')) + '</h2></div><div class="catgrid">' + cats + '</div></div>' +
         '<div class="section"><div class="section-head"><h2>' + esc(t('key_rates')) + '</h2>' +
         '<button class="see-all" data-action="nav" data-route="#/materials">' + esc(t('see_all')) + ' →</button></div>' + keyRows + '</div>' +
@@ -1257,18 +1434,139 @@ body {
     });
   }
 
+  /* ---------------- construction calculator ---------------- */
+  var CALC_FLOORS_KG = { g: 1.0, g1: 1.06, g2: 1.12 };
+  var CALC_AGGR_T_PER_CFT = 0.042;  // blue metal: ~4.2 t per unit (100 cft)
+
+  function calcEstimate(mats) {
+    var by = {};
+    mats.forEach(function (m) { by[m.slug] = m; });
+    var c = state.calc;
+    var tierIdx = { e: 0, s: 1, p: 2 }[c.tier];
+    var A = c.area;
+
+    var cementBags = A * [0.34, 0.40, 0.44][tierIdx];
+    var steelKg = A * [3.4, 3.9, 4.5][tierIdx] * CALC_FLOORS_KG[c.floors];
+    var msandUnits = (A * [0.95, 1.15, 1.30][tierIdx]) / 100;
+    var psandUnits = (A * [0.32, 0.42, 0.50][tierIdx]) / 100;
+    var aggTonnes = (A * [0.60, 0.75, 0.85][tierIdx]) * CALC_AGGR_T_PER_CFT;
+    var wallCount = c.wall === 'red' ? A * [13, 15, 16][tierIdx]
+                  : c.wall === 'aac' ? A * [1.45, 1.55, 1.65][tierIdx]
+                  : A * [2.10, 2.25, 2.40][tierIdx];
+    var wallSlug = c.wall === 'red' ? 'red-bricks' : c.wall === 'aac' ? 'aac-blocks' : 'solid-concrete-blocks';
+    var paintL = A * [0.022, 0.026, 0.030][tierIdx];
+    var primerL = A * [0.018, 0.020, 0.022][tierIdx];
+    var puttyBags = (A * [0.10, 0.13, 0.16][tierIdx]) / 40;
+    var tilesSqft = A * 0.95;
+    var wireKg = steelKg / 100;
+
+    var rows = [];
+    function add(slug, qty, qtyLabel, rateLabel) {
+      var m = by[slug];
+      if (!m || !isFinite(qty) || qty <= 0) return;
+      rows.push({
+        m: m, qty: qty, qtyLabel: qtyLabel, rateLabel: rateLabel,
+        rate: m.price_avg, cost: qty * m.price_avg
+      });
+    }
+    add('cement-opc-53', cementBags, qfmt(cementBags, 0) + ' ' + t('u_bags'), t('u_bag'));
+    add('tmt-steel-fe500d', steelKg, qfmt(steelKg, 0) + ' ' + t('u_kg') + (steelKg >= 1000 ? ' (' + qfmt(steelKg / 1000, 1) + ' ' + t('u_t') + ')' : ''), t('u_kg'));
+    add(wallSlug, wallCount, qfmt(wallCount, 0) + ' ' + t('u_nos'), t('u_nos'));
+    add('m-sand', msandUnits, qfmt(msandUnits, 1) + ' ' + t('u_units'), t('u_unit'));
+    add('p-sand', psandUnits, qfmt(psandUnits, 1) + ' ' + t('u_units'), t('u_unit'));
+    add('blue-metal-20mm', aggTonnes, qfmt(aggTonnes, 1) + ' ' + t('u_tonnes'), t('u_t'));
+    add('vitrified-tiles', tilesSqft, qfmt(tilesSqft, 0) + ' ' + t('u_sqft'), t('u_sqft'));
+    add('interior-emulsion', paintL, qfmt(paintL, 1) + ' ' + t('u_litres'), t('u_l'));
+    add('wall-primer', primerL, qfmt(primerL, 1) + ' ' + t('u_litres'), t('u_l'));
+    add('wall-putty', puttyBags, qfmt(puttyBags, 1) + ' ' + t('u_bags'), t('u_bag'));
+    add('binding-wire', wireKg, qfmt(wireKg, 1) + ' ' + t('u_kg'), t('u_kg'));
+
+    rows.sort(function (a, b) { return b.cost - a.cost; });
+    var total = rows.reduce(function (s, r) { return s + r.cost; }, 0);
+    return { rows: rows, total: total, perSqft: total / A, area: A };
+  }
+
+  function qfmt(n, dec) {
+    return new Intl.NumberFormat('en-IN', { maximumFractionDigits: dec, minimumFractionDigits: 0 }).format(n);
+  }
+
+  function calcSeg(key, opts) {
+    return '<div class="chiprow">' + opts.map(function (o) {
+      var active = state.calc[key] === o.v ? ' active' : '';
+      return '<button class="chip' + active + '" data-action="calcset" data-key="' + key + '" data-val="' + o.v + '">' + esc(t(o.k)) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function calcResultsHtml(est) {
+    var max = est.rows.length ? est.rows[0].cost : 1;
+    var rowsHtml = est.rows.map(function (r) {
+      var pct = Math.max(3, Math.round(r.cost / max * 100));
+      return '<div class="calcrow">' +
+        '<div class="cr-top"><div><div class="cr-name">' + esc(state.lang === 'ta' ? r.m.name_ta : r.m.name) + '</div>' +
+        '<div class="cr-qty">' + r.qtyLabel + ' × ' + fmt(r.rate) + ' / ' + r.rateLabel + '</div></div>' +
+        '<div class="cr-cost">' + fmt(Math.round(r.cost)) + '</div></div>' +
+        '<div class="cr-bar"><i style="width:' + pct + '%"></i></div></div>';
+    }).join('');
+    return '<div class="hero"><span class="catpill">' + esc(t('est_cost')) + '</span>' +
+      '<div class="herosplit"><strong>' + fmt(Math.round(est.total)) + '</strong>' +
+      '<span>≈ ' + fmt(Math.round(est.perSqft)) + ' ' + esc(t('per_sqft_rate')) + '</span></div>' +
+      '<div class="herofoot"><span class="badge onDark flat">' + esc(t('materials_only')) + '</span>' +
+      '<span class="badge onDark flat">' + qfmt(est.area, 0) + ' ' + esc(t('sqft_unit')) + '</span></div></div>' +
+      '<div class="card panel"><h3>' + ICONS.box + ' ' + esc(t('breakdown')) + '</h3>' + rowsHtml + '</div>';
+  }
+
+  function viewCalc() {
+    main.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+    return api('/api/materials').then(function (res) {
+      var mats = res.materials;
+
+      function update() {
+        document.getElementById('calcResults').innerHTML = calcResultsHtml(calcEstimate(mats));
+      }
+      main.innerHTML =
+        '<div class="greeting"><h2>' + esc(t('calc_title')) + '</h2></div>' +
+
+        '<div class="card calcpanel"><label class="plabel">' + esc(t('builtup')) + '</label>' +
+        '<div class="stepper">' +
+        '<button class="stepbtn" data-action="calcstep" data-delta="-100" aria-label="minus">−</button>' +
+        '<input id="calcArea" class="areainput" type="number" inputmode="numeric" min="100" max="100000" step="50" value="' + state.calc.area + '" aria-label="built-up area">' +
+        '<button class="stepbtn" data-action="calcstep" data-delta="100" aria-label="plus">+</button>' +
+        '<span class="unitlbl">' + esc(t('sqft_unit')) + '</span></div></div>' +
+
+        '<div class="card calcpanel"><label class="plabel">' + esc(t('quality')) + '</label>' +
+        calcSeg('tier', [{ v: 'e', k: 'economy' }, { v: 's', k: 'standard' }, { v: 'p', k: 'premium' }]) + '</div>' +
+
+        '<div class="card calcpanel"><label class="plabel">' + esc(t('floors')) + '</label>' +
+        calcSeg('floors', [{ v: 'g', k: 'ground' }, { v: 'g1', k: 'g1' }, { v: 'g2', k: 'g2' }]) + '</div>' +
+
+        '<div class="card calcpanel"><label class="plabel">' + esc(t('wallmat')) + '</label>' +
+        calcSeg('wall', [{ v: 'red', k: 'red_bricks' }, { v: 'aac', k: 'aac_blocks' }, { v: 'solid', k: 'solid_blocks' }]) + '</div>' +
+
+        '<div id="calcResults"></div>' +
+
+        '<div class="card panel"><h3>' + ICONS.info + ' ' + esc(t('about')) + '</h3>' +
+        '<p class="body">' + esc(t('calc_note1')) + '</p>' +
+        '<p class="body">' + esc(t('calc_note2')) + '</p>' +
+        '<div class="notecard">💡 ' + esc(t('rates_from')) + '.</div></div>';
+
+      update();
+      updaters.calc = update;
+    });
+  }
+
   /* ---------------- render dispatcher ---------------- */
   function render() {
     if (pendingRoute) { state.route = pendingRoute; pendingRoute = null; }
     else { state.route = parseHash(); }
     setActiveTab(state.route.view);
-    updaters.mat = null; updaters.store = null;
+    updaters.mat = null; updaters.store = null; updaters.calc = null;
     main.scrollTop = 0;
     var p;
     switch (state.route.view) {
       case 'materials': p = viewMaterials(); break;
       case 'material': p = viewMaterial(state.route.param); break;
       case 'stores': p = viewStores(); break;
+      case 'calc': p = viewCalc(); break;
       case 'store': p = viewStore(state.route.param); break;
       case 'saved': p = viewSaved(); break;
       default: p = viewHome();
@@ -1313,6 +1611,16 @@ body {
         state.storeFilter.city = el.dataset.city;
         render();
         break;
+      case 'calcset':
+        state.calc[el.dataset.key] = el.dataset.val;
+        persistSet('br_calc', state.calc);
+        render();
+        break;
+      case 'calcstep':
+        state.calc.area = Math.max(100, Math.min(100000, (+state.calc.area || 1000) + (+el.dataset.delta || 0)));
+        persistSet('br_calc', state.calc);
+        render();
+        break;
       case 'toggle-fav':
         toggleFav(el.dataset.type, el.dataset.slug);
         el.classList.toggle('faved');
@@ -1345,6 +1653,14 @@ body {
     if (e.target.id === 'storeSearch') {
       state.storeFilter.q = e.target.value;
       if (updaters.store) updaters.store();
+    }
+    if (e.target.id === 'calcArea') {
+      var v = parseInt(e.target.value, 10);
+      if (!isNaN(v) && v >= 100) {
+        state.calc.area = Math.min(100000, v);
+        persistSet('br_calc', state.calc);
+        if (updaters.calc) updaters.calc();
+      }
     }
   });
 

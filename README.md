@@ -21,6 +21,7 @@ python3 app.py
 | 🔍 Search & filter | By material, store, city, or category — Tamil names searchable too |
 | 🇮🇳 Bilingual UI | One tap switches the entire interface between English and Tamil |
 | ❤️ Favourites | Save materials & stores (persists in the browser) |
+| 🧮 Construction calculator | Estimate material quantities & cost by built-up area, quality tier, floors and wall material — rates pulled live from the app's price data |
 
 ## Project layout
 
