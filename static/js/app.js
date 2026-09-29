@@ -26,8 +26,21 @@
     storeFilter: { q: '', city: 'all' },
     focusSearch: false,
     route: { view: 'home', param: null },
-    calc: null
+    builderFilter: { q: '', city: 'all', type: 'all' },
+    calcMode: persistGet('br_cmode', 'materials') === 'loan' ? 'loan' : 'materials',
+    calc: null,
+    loan: null
   };
+  (function initLoan() {
+    var l = persistGet('br_loan', null);
+    if (!l || typeof l !== 'object') l = {};
+    state.loan = {
+      lakh: isFinite(+l.lakh) && +l.lakh >= 3 ? +l.lakh : 30,
+      dp: [10, 15, 20, 25, 30].indexOf(+l.dp) >= 0 ? +l.dp : 20,
+      rate: isFinite(+l.rate) && +l.rate > 1 && +l.rate < 30 ? +l.rate : 8.5,
+      years: [10, 15, 20, 25, 30].indexOf(+l.years) >= 0 ? +l.years : 20
+    };
+  })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
     if (!c || typeof c !== 'object') c = {};
@@ -75,6 +88,7 @@
       saved_empty_hint: 'Tap the ♥ on any material or store to keep it here.',
       saved_materials: 'Saved materials',
       saved_stores: 'Saved stores',
+      saved_builders: 'Saved builders',
       browse_materials: 'Browse materials',
       browse_stores: 'Browse stores',
       back: 'Back',
@@ -128,7 +142,38 @@
       u_bag: 'bag',
       u_unit: 'unit',
       u_t: 't',
-      u_l: 'L'
+      u_l: 'L',
+      nav_builders: 'Builders',
+      builders_title: 'Builders & Package Rates',
+      search_builders: 'Search builders by name or city…',
+      builders_count: '{n} builders · {m} shown',
+      per_sqft_short: '/sq.ft',
+      min_area: 'Min area',
+      areas_served: 'Areas served',
+      inclusions: "What's included",
+      yrs_short: 'yrs',
+      projects_short: 'projects',
+      turnkey: 'Turnkey',
+      semi: 'Semi-turnkey',
+      labour: 'Labour only',
+      all_types: 'All types',
+      sample_listing: 'Sample listing — verify actual rates with the builder',
+      mode_materials: 'Material Estimate',
+      mode_loan: 'Home Loan EMI',
+      property_cost: 'Total house cost',
+      in_lakhs: '₹ lakh',
+      down_payment: 'Down payment',
+      interest_rate: 'Interest rate (p.a.)',
+      loan_tenure: 'Loan tenure',
+      monthly_emi: 'Monthly EMI',
+      loan_amount: 'Loan amount',
+      total_interest: 'Total interest',
+      total_repay: 'Total repayment',
+      per_month: '/month',
+      yrs: 'yrs',
+      principal: 'Principal',
+      interest: 'Interest',
+      loan_note: 'Estimate only — actual EMI depends on your bank, CIBIL score, processing fee and eligibility. Home loan rates in India currently hover around 8.3–9.5% p.a.'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -163,6 +208,7 @@
       saved_empty_hint: 'ஏதேனும் பொருள் அல்லது கடையில் ♥ ஐ அழுத்தி இங்கே சேமிக்கவும்.',
       saved_materials: 'சேமித்த பொருட்கள்',
       saved_stores: 'சேமித்த கடைகள்',
+      saved_builders: 'சேமித்த நிறுவனங்கள்',
       browse_materials: 'பொருட்களைப் பார்க்க',
       browse_stores: 'கடைகளைப் பார்க்க',
       back: 'பின்',
@@ -216,7 +262,38 @@
       u_bag: 'மூட்டை',
       u_unit: 'யூனிட்',
       u_t: 'டன்',
-      u_l: 'லி'
+      u_l: 'லி',
+      nav_builders: 'பில்டர்கள்',
+      builders_title: 'கட்டுமான நிறுவனங்கள் & விகிதங்கள்',
+      search_builders: 'நிறுவனம் அல்லது நகரம் தேடுங்கள்…',
+      builders_count: '{n} நிறுவனங்கள் · {m} காட்டப்படுகிறது',
+      per_sqft_short: '/ச.அடி',
+      min_area: 'குறைந்தபட்ச பரப்பளவு',
+      areas_served: 'சேவை பகுதிகள்',
+      inclusions: 'சேர்க்கப்படும் வேலைகள்',
+      yrs_short: 'ஆண்டு',
+      projects_short: 'திட்டங்கள்',
+      turnkey: 'முழு பேக்கேஜ்',
+      semi: 'அரை பேக்கேஜ்',
+      labour: 'வேலை மட்டும்',
+      all_types: 'அனைத்து வகை',
+      sample_listing: 'மாதிரி தகவல் — உண்மை விகிதத்தை நிறுவனத்திடம் உறுதிப்படுத்தவும்',
+      mode_materials: 'பொருள் மதிப்பீடு',
+      mode_loan: 'வீட்டுக் கடா EMI',
+      property_cost: 'வீட்டின் மொத்த செலவு',
+      in_lakhs: '₹ லட்சம்',
+      down_payment: 'முன்பணம்',
+      interest_rate: 'வட்டி விகிதம் (ஆண்டுக்கு)',
+      loan_tenure: 'கடா காலம்',
+      monthly_emi: 'மாதாந்திர EMI',
+      loan_amount: 'கடா தொகை',
+      total_interest: 'மொத்த வட்டி',
+      total_repay: 'மொத்த திருப்புத் தொகை',
+      per_month: '/மாதம்',
+      yrs: 'ஆண்டு',
+      principal: 'அசல்',
+      interest: 'வட்டி',
+      loan_note: 'மதிப்பீடு மட்டும் — உண்மை EMI வங்கி, CIBIL மதிப்பெண், செயலாக்க கட்டணம் பொறுத்தது. இந்தியாவில் வீட்டுக் கடா வட்டி தற்போது சுமார் 8.3–9.5% ஆண்டுக்கு.'
     }
   };
   function t(key, n, m) {
@@ -334,7 +411,8 @@
     if (!parts.length) return { view: 'home', param: null };
     if (parts[0] === 'material' && parts[1]) return { view: 'material', param: decodeURIComponent(parts[1]) };
     if (parts[0] === 'store' && parts[1]) return { view: 'store', param: decodeURIComponent(parts[1]) };
-    if (['home', 'materials', 'stores', 'calc', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
+    if (parts[0] === 'builder' && parts[1]) return { view: 'builder', param: decodeURIComponent(parts[1]) };
+    if (['home', 'materials', 'stores', 'builders', 'calc', 'saved'].indexOf(parts[0]) >= 0) return { view: parts[0], param: null };
     return { view: 'home', param: null };
   }
   var lastSetHash = null;
@@ -354,10 +432,11 @@
     var s = r.replace(/^#\/?/, '');
     if (s.indexOf('material/') === 0) return { view: 'material', param: s.slice(9) };
     if (s.indexOf('store/') === 0) return { view: 'store', param: s.slice(6) };
+    if (s.indexOf('builder/') === 0) return { view: 'builder', param: s.slice(8) };
     return { view: s || 'home', param: null };
   }
 
-  var TAB_FOR = { home: 'home', materials: 'materials', material: 'materials', stores: 'stores', store: 'stores', calc: 'calc', saved: 'saved' };
+  var TAB_FOR = { home: 'home', materials: 'materials', material: 'materials', stores: 'stores', store: 'stores', builders: 'builders', builder: 'builders', calc: 'calc', saved: 'saved' };
   function setActiveTab(view) {
     var tab = TAB_FOR[view] || 'home';
     document.querySelectorAll('.navitem').forEach(function (b) {
@@ -629,6 +708,7 @@
   function viewSaved() {
     var matFavs = state.favs.filter(function (f) { return f.type === 'material'; });
     var storeFavs = state.favs.filter(function (f) { return f.type === 'store'; });
+    var builderFavs = state.favs.filter(function (f) { return f.type === 'builder'; });
 
     if (!state.favs.length) {
       main.innerHTML = '<div class="empty"><div class="e-ico">💙</div><h3>' + esc(t('saved_empty_title')) + '</h3>' +
@@ -639,8 +719,8 @@
       return Promise.resolve();
     }
 
-    return Promise.all([api('/api/materials'), api('/api/stores')]).then(function (res) {
-      var mats = res[0].materials, stores = res[1].stores;
+    return Promise.all([api('/api/materials'), api('/api/stores'), api('/api/builders')]).then(function (res) {
+      var mats = res[0].materials, stores = res[1].stores, builders = res[2].builders;
       var matHtml = matFavs.map(function (f) {
         var m = mats.find(function (x) { return x.slug === f.slug; });
         return m ? matCard(m) : '';
@@ -650,9 +730,106 @@
         return s ? storeCard(s) : '';
       }).join('');
 
+      var builderHtml = builderFavs.map(function (f) {
+        var b = builders.find(function (x) { return x.slug === f.slug; });
+        return b ? builderCard(b) : '';
+      }).join('');
+
       main.innerHTML =
         (matFavs.length ? '<div class="section"><div class="section-head"><h2>' + esc(t('saved_materials')) + '</h2></div>' + matHtml + '</div>' : '') +
-        (storeFavs.length ? '<div class="section"><div class="section-head"><h2>' + esc(t('saved_stores')) + '</h2></div>' + storeHtml + '</div>' : '');
+        (storeFavs.length ? '<div class="section"><div class="section-head"><h2>' + esc(t('saved_stores')) + '</h2></div>' + storeHtml + '</div>' : '') +
+        (builderFavs.length ? '<div class="section"><div class="section-head"><h2>' + esc(t('saved_builders')) + '</h2></div>' + builderHtml + '</div>' : '');
+    });
+  }
+
+  /* ---------------- builders ---------------- */
+  var TYPE_KEYS = { turnkey: 'turnkey', semi: 'semi', labour: 'labour' };
+
+  function builderCard(b) {
+    return '<button class="buildrow" data-action="open-builder" data-slug="' + b.slug + '">' +
+      '<span class="builderavatar">' + esc(b.name.trim()[0]) + '</span>' +
+      '<span class="buildermid"><span class="buildername">' + esc(b.name) + '</span>' +
+      '<span class="builderloc">' + esc(b.city) + ' · ' + esc(t(TYPE_KEYS[b.type] || b.type)) + '</span>' +
+      '<span class="buildertags"><span class="tag">★ ' + b.rating.toFixed(1) + '</span>' +
+      '<span class="tag">' + b.projects + ' ' + esc(t('projects_short')) + '</span>' +
+      '<span class="tag">' + b.years + ' ' + esc(t('yrs_short')) + '</span>' +
+      (b.min_area ? '<span class="tag">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>' : '') +
+      '</span></span>' +
+      '<span class="builderright"><span class="builderrate">' + fmt(b.rate) + '<small>' + esc(t('per_sqft_short')) + '</small></span></span></button>';
+  }
+
+  function viewBuilders() {
+    main.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+    return Promise.all([api('/api/meta'), api('/api/builders')]).then(function (res) {
+      var meta = res[0], all = res[1].builders;
+      var f = state.builderFilter;
+      var typeChips = '<button class="chip' + (f.type === 'all' ? ' active' : '') + '" data-action="buildertype" data-val="all">' + esc(t('all_types')) + '</button>' +
+        meta.builder_types.map(function (ty) {
+          return '<button class="chip' + (f.type === ty.id ? ' active' : '') + '" data-action="buildertype" data-val="' + ty.id + '">' + esc(state.lang === 'ta' ? ty.name_ta : ty.name) + '</button>';
+        }).join('');
+      var cityChips = '<button class="chip' + (f.city === 'all' ? ' active' : '') + '" data-action="buildercity" data-val="all">' + esc(t('all')) + '</button>' +
+        meta.builder_cities.map(function (c) {
+          return '<button class="chip' + (f.city === c ? ' active' : '') + '" data-action="buildercity" data-val="' + esc(c) + '">' + esc(c) + '</button>';
+        }).join('');
+
+      main.innerHTML =
+        '<div class="greeting"><h2>' + esc(t('builders_title')) + '</h2></div>' +
+        '<div class="searchbar">' + ICONS.search + '<input id="builderSearch" placeholder="' + esc(t('search_builders')) + '" value="' + esc(f.q) + '" autocomplete="off"></div>' +
+        '<div class="chiprow">' + typeChips + '</div>' +
+        '<div class="chiprow">' + cityChips + '</div>' +
+        '<p class="countline" id="builderCount"></p>' +
+        '<div id="builderList"></div>' +
+        '<p class="footnote">' + esc(t('sample_listing')) + '.</p>';
+
+      function update() {
+        var q = f.q.trim().toLowerCase();
+        var list = all.filter(function (b) {
+          if (f.city !== 'all' && b.city !== f.city) return false;
+          if (f.type !== 'all' && b.type !== f.type) return false;
+          if (!q) return true;
+          return (b.name + ' ' + b.city).toLowerCase().indexOf(q) >= 0;
+        });
+        document.getElementById('builderCount').textContent = t('builders_count', all.length, list.length).replace('{n}', all.length).replace('{m}', list.length);
+        document.getElementById('builderList').innerHTML = list.length
+          ? list.map(builderCard).join('')
+          : '<div class="empty"><div class="e-ico">🏗️</div><h3>' + esc(t('no_results')) + '</h3><p>' + esc(t('no_results_hint')) + '</p></div>';
+      }
+      update();
+      updaters.builder = update;
+    });
+  }
+
+  function viewBuilder(slug) {
+    main.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+    return api('/api/builders/' + encodeURIComponent(slug)).then(function (b) {
+      if (!b || b.error) throw new Error('not found');
+      var faved = isFav('builder', b.slug);
+      var incl = (b.inclusions || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+
+      main.innerHTML =
+        '<div class="backbar"><button class="backbtn" data-action="back" data-to="#/builders">' + ICONS.back + ' ' + esc(t('back')) + '</button>' +
+        '<button class="favbtn' + (faved ? ' faved' : '') + '" data-action="toggle-fav" data-type="builder" data-slug="' + b.slug + '" aria-label="favourite">' + ICONS.heart + '</button></div>' +
+
+        '<div class="hero"><span class="catpill">' + esc(t(TYPE_KEYS[b.type] || b.type)) + ' · ' + esc(b.city) + '</span>' +
+        '<h2>' + esc(b.name) + '</h2>' +
+        '<div class="heroTa">★ ' + b.rating.toFixed(1) + ' · ' + b.reviews + ' ' + esc(t('reviews')) + '</div>' +
+        '<div class="herosplit"><strong>' + fmt(b.rate) + '</strong><span>' + esc(t('per_sqft_rate')) + '</span></div>' +
+        '<div class="herofoot"><span class="badge onDark flat">' + b.projects + ' ' + esc(t('projects_short')) + '</span>' +
+        '<span class="badge onDark flat">' + b.years + ' ' + esc(t('yrs_short')) + ' ' + esc(t('experience')) + '</span>' +
+        (b.min_area ? '<span class="badge onDark flat">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>' : '') +
+        '</div></div>' +
+
+        '<div class="actionbtns"><a class="btn primary" href="tel:' + esc(b.phone.replace(/\s/g, '')) + '">' + ICONS.phone + ' ' + esc(t('call')) + '</a></div>' +
+
+        '<div class="card panel"><h3>' + ICONS.info + ' ' + esc(t('inclusions')) + '</h3>' +
+        '<ul class="inclist">' + incl + '</ul>' +
+        (b.note ? '<div class="notecard">⚠️ ' + esc(b.note) + '</div>' : '') + '</div>' +
+
+        '<div class="card panel"><h3>' + ICONS.pin + ' ' + esc(t('areas_served')) + '</h3>' +
+        '<div class="inforow">' + ICONS.pin + '<span>' + esc(b.areas) + '</span></div>' +
+        '<div class="inforow">' + ICONS.phone + '<span>' + esc(b.phone) + '</span></div></div>' +
+
+        '<p class="footnote">' + esc(t('sample_listing')) + '.</p>';
     });
   }
 
@@ -737,7 +914,19 @@
       '<div class="card panel"><h3>' + ICONS.box + ' ' + esc(t('breakdown')) + '</h3>' + rowsHtml + '</div>';
   }
 
+  function calcModeChips() {
+    return '<div class="chiprow">' +
+      '<button class="chip' + (state.calcMode === 'materials' ? ' active' : '') + '" data-action="calcmode" data-val="materials">' + esc(t('mode_materials')) + '</button>' +
+      '<button class="chip' + (state.calcMode === 'loan' ? ' active' : '') + '" data-action="calcmode" data-val="loan">' + esc(t('mode_loan')) + '</button>' +
+      '</div>';
+  }
+
   function viewCalc() {
+    if (state.calcMode === 'loan') return viewCalcLoan();
+    return viewCalcMaterials();
+  }
+
+  function viewCalcMaterials() {
     main.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
     return api('/api/materials').then(function (res) {
       var mats = res.materials;
@@ -747,6 +936,7 @@
       }
       main.innerHTML =
         '<div class="greeting"><h2>' + esc(t('calc_title')) + '</h2></div>' +
+        calcModeChips() +
 
         '<div class="card calcpanel"><label class="plabel">' + esc(t('builtup')) + '</label>' +
         '<div class="stepper">' +
@@ -776,18 +966,102 @@
     });
   }
 
+  /* ---------------- home loan calculator ---------------- */
+  function loanCalc() {
+    var L = state.loan;
+    var cost = L.lakh * 100000;
+    var loan = Math.max(0, cost * (1 - L.dp / 100));
+    var r = L.rate / 1200;
+    var n = L.years * 12;
+    var emi;
+    if (r <= 0) emi = loan / n;
+    else { var f = Math.pow(1 + r, n); emi = loan * r * f / (f - 1); }
+    return {
+      cost: cost, loan: loan, dpAmt: cost - loan, emi: emi, n: n,
+      totalRepay: emi * n, totalInt: emi * n - loan
+    };
+  }
+
+  function loanSeg(key, opts, fmtLabel) {
+    return '<div class="chiprow">' + opts.map(function (o) {
+      var active = state.loan[key] === o ? ' active' : '';
+      return '<button class="chip' + active + '" data-action="loanset" data-key="' + key + '" data-val="' + o + '">' + esc(fmtLabel(o)) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function loanResultsHtml(r) {
+    var intPct = Math.round(r.totalInt / r.totalRepay * 100);
+    return '<div class="hero"><span class="catpill">' + esc(t('monthly_emi')) + '</span>' +
+      '<div class="herosplit"><strong>' + fmt(Math.round(r.emi)) + '</strong><span>' + esc(t('per_month')) + '</span></div>' +
+      '<div class="herofoot"><span class="badge onDark flat">' + esc(t('loan_amount')) + ': ' + fmt(Math.round(r.loan)) + '</span>' +
+      '<span class="badge onDark flat">' + state.loan.years + ' ' + esc(t('yrs')) + ' · ' + state.loan.rate + '%</span></div></div>' +
+
+      '<div class="card panel"><h3>' + ICONS.chart + ' ' + esc(t('breakdown')) + '</h3>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('property_cost')) + ':</b> ' + fmt(Math.round(r.cost)) + '</span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('down_payment')) + ' (' + state.loan.dp + '%):</b> ' + fmt(Math.round(r.dpAmt)) + '</span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('loan_amount')) + ':</b> ' + fmt(Math.round(r.loan)) + '</span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('total_interest')) + ':</b> ' + fmt(Math.round(r.totalInt)) + '</span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('total_repay')) + ':</b> ' + fmt(Math.round(r.totalRepay)) + '</span></div>' +
+      '<div class="splitbar"><i class="s1" style="width:' + (100 - intPct) + '%"></i><i class="s2" style="width:' + intPct + '%"></i></div>' +
+      '<div class="splitlegend"><span><i class="s1" style="background:var(--navy-3)"></i>' + esc(t('principal')) + ' ' + (100 - intPct) + '%</span>' +
+      '<span><i class="s2" style="background:var(--accent)"></i>' + esc(t('interest')) + ' ' + intPct + '%</span></div>' +
+      '<div class="notecard">💡 ' + esc(t('loan_note')) + '</div></div>';
+  }
+
+  function viewCalcLoan() {
+    function update() {
+      document.getElementById('loanResults').innerHTML = loanResultsHtml(loanCalc());
+    }
+    var L = state.loan;
+    main.innerHTML =
+      '<div class="greeting"><h2>' + esc(t('mode_loan')) + '</h2></div>' +
+      calcModeChips() +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('property_cost')) + '</label>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="lakh" data-delta="-1" aria-label="minus">−</button>' +
+      '<input id="loanCost" class="areainput" type="number" inputmode="numeric" min="3" max="500" step="1" value="' + L.lakh + '" aria-label="cost in lakhs">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="lakh" data-delta="1" aria-label="plus">+</button>' +
+      '<span class="unitlbl">' + esc(t('in_lakhs')) + '</span></div>' +
+      '<div class="chiprow" style="margin-top:10px">' +
+      [20, 30, 50, 75, 100].map(function (v) {
+        return '<button class="chip' + (L.lakh === v ? ' active' : '') + '" data-action="loanset" data-key="lakh" data-val="' + v + '">' + v + 'L</button>';
+      }).join('') + '</div></div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('down_payment')) + '</label>' +
+      loanSeg('dp', [10, 15, 20, 25, 30], function (o) { return o.v + '%'; }) + '</div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('interest_rate')) + '</label>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="rate" data-delta="-0.25" aria-label="minus">−</button>' +
+      '<input id="loanRate" class="areainput" type="number" inputmode="decimal" min="4" max="20" step="0.05" value="' + L.rate + '" aria-label="interest rate">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="rate" data-delta="0.25" aria-label="plus">+</button>' +
+      '<span class="unitlbl">% p.a.</span></div></div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('loan_tenure')) + '</label>' +
+      loanSeg('years', [10, 15, 20, 25, 30], function (o) { return o.v + ' ' + t('yrs'); }) + '</div>' +
+
+      '<div id="loanResults"></div>';
+
+    update();
+    updaters.loan = update;
+    return Promise.resolve();
+  }
+
   /* ---------------- render dispatcher ---------------- */
   function render() {
     if (pendingRoute) { state.route = pendingRoute; pendingRoute = null; }
     else { state.route = parseHash(); }
     setActiveTab(state.route.view);
-    updaters.mat = null; updaters.store = null; updaters.calc = null;
+    updaters.mat = null; updaters.store = null; updaters.calc = null; updaters.loan = null; updaters.builder = null;
     main.scrollTop = 0;
     var p;
     switch (state.route.view) {
       case 'materials': p = viewMaterials(); break;
       case 'material': p = viewMaterial(state.route.param); break;
       case 'stores': p = viewStores(); break;
+      case 'builders': p = viewBuilders(); break;
+      case 'builder': p = viewBuilder(state.route.param); break;
       case 'calc': p = viewCalc(); break;
       case 'store': p = viewStore(state.route.param); break;
       case 'saved': p = viewSaved(); break;
@@ -833,6 +1107,35 @@
         state.storeFilter.city = el.dataset.city;
         render();
         break;
+      case 'open-builder':
+        go('#/builder/' + encodeURIComponent(el.dataset.slug));
+        break;
+      case 'buildertype':
+        state.builderFilter.type = el.dataset.val;
+        render();
+        break;
+      case 'buildercity':
+        state.builderFilter.city = el.dataset.val;
+        render();
+        break;
+      case 'calcmode':
+        state.calcMode = el.dataset.val === 'loan' ? 'loan' : 'materials';
+        persistSet('br_cmode', state.calcMode);
+        render();
+        break;
+      case 'loanset':
+        state.loan[el.dataset.key] = +el.dataset.val;
+        persistSet('br_loan', state.loan);
+        render();
+        break;
+      case 'loanstep': {
+        var key = el.dataset.key, d = +el.dataset.delta;
+        if (key === 'lakh') state.loan.lakh = Math.max(3, Math.min(500, state.loan.lakh + d));
+        if (key === 'rate') state.loan.rate = Math.round(Math.max(4, Math.min(20, state.loan.rate + d)) * 100) / 100;
+        persistSet('br_loan', state.loan);
+        render();
+        break;
+      }
       case 'calcset':
         state.calc[el.dataset.key] = el.dataset.val;
         persistSet('br_calc', state.calc);
@@ -875,6 +1178,26 @@
     if (e.target.id === 'storeSearch') {
       state.storeFilter.q = e.target.value;
       if (updaters.store) updaters.store();
+    }
+    if (e.target.id === 'builderSearch') {
+      state.builderFilter.q = e.target.value;
+      if (updaters.builder) updaters.builder();
+    }
+    if (e.target.id === 'loanCost') {
+      var lakhs = parseInt(e.target.value, 10);
+      if (!isNaN(lakhs) && lakhs >= 3) {
+        state.loan.lakh = Math.min(500, lakhs);
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanRate') {
+      var rt = parseFloat(e.target.value);
+      if (!isNaN(rt) && rt >= 4 && rt <= 20) {
+        state.loan.rate = rt;
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
     }
     if (e.target.id === 'calcArea') {
       var v = parseInt(e.target.value, 10);

@@ -706,3 +706,69 @@ body {
 .hero .herosplit { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .hero .herosplit strong { font-size: 1.75rem; font-weight: 800; }
 .hero .herosplit span { font-size: .78rem; opacity: .8; }
+
+/* ---------- builders ---------- */
+.buildrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  margin-bottom: 9px;
+}
+.buildrow:active { background: #f8fafc; }
+.builderavatar {
+  flex: none;
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: #3b2f0b;
+  color: #fcd34d;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.buildermid { flex: 1; min-width: 0; }
+.buildername { font-size: .86rem; font-weight: 700; line-height: 1.25; }
+.builderloc { font-size: .68rem; color: var(--muted); margin-top: 2px; }
+.buildertags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.builderright { flex: none; text-align: right; }
+.builderrate { font-size: .98rem; font-weight: 800; color: #b45309; white-space: nowrap; }
+.builderrate small { font-size: .58rem; color: var(--faint); font-weight: 700; display: block; margin-top: 1px; }
+
+.inclist { list-style: none; }
+.inclist li {
+  font-size: .78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 6px 0 6px 22px;
+  position: relative;
+  border-bottom: 1px dashed var(--line);
+}
+.inclist li:last-child { border-bottom: 0; }
+.inclist li::before {
+  content: "✓";
+  position: absolute;
+  left: 2px;
+  color: var(--down);
+  font-weight: 800;
+}
+
+/* ---------- home loan calculator ---------- */
+.modelabel { font-size: .58rem; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .4px; }
+.splitbar { display: flex; height: 14px; border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.splitbar .s1 { background: var(--navy-3); }
+.splitbar .s2 { background: var(--accent); }
+.splitlegend { display: flex; gap: 14px; margin-top: 8px; font-size: .68rem; color: var(--muted); font-weight: 700; }
+.splitlegend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
+
+/* nav: 6 tabs */
+.navitem { padding: 6px 1px 4px; font-size: .57rem; }
+.navitem svg { width: 21px; height: 21px; }

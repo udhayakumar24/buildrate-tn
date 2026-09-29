@@ -1,0 +1,265 @@
+{
+  "note": "Sample builder listings for demonstration. Package rates are indicative — always verify with the builder.",
+  "builders": [
+    {
+      "slug": "sri-venkateswara-constructions",
+      "name": "Sri Venkateswara Constructions",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2250,
+      "min_area": 800,
+      "projects": 62,
+      "years": 15,
+      "rating": 4.4,
+      "reviews": 184,
+      "phone": "+91 98400 61725",
+      "areas": "Chennai South — Medavakkam, Perumbakkam, Tambaram, OMR",
+      "inclusions": [
+        "RCC structure with branded cement & TMT steel",
+        "Brick work + internal/external plastering",
+        "Standard vitrified tile flooring (₹75/sq.ft grade)",
+        "Basic electrical & plumbing (ISI fittings)",
+        "Putty + 2 coats interior emulsion",
+        "Kitchen granite platform with stainless sink"
+      ],
+      "note": "Package excludes borewell, compound wall, approvals & interior woodwork."
+    },
+    {
+      "slug": "aditya-build-homes",
+      "name": "Aditya Build Homes",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2800,
+      "min_area": 1000,
+      "projects": 38,
+      "years": 11,
+      "rating": 4.6,
+      "reviews": 129,
+      "phone": "+91 98410 73456",
+      "areas": "Chennai — Anna Nagar, Kilpauk, Mogappair, Porur",
+      "inclusions": [
+        "RCC structure designed by licensed structural engineer",
+        "Premium finishes (vitrified tiles ₹110+/sq.ft grade)",
+        "Modular kitchen provision + full wardrobes in 2 bedrooms",
+        "Concealed CPVC plumbing & FR copper wiring",
+        "Exterior weather-proof painting",
+        "6-month post-handover defect support"
+      ],
+      "note": "Premium package; fly-ash/AAC block walls optional at +₹45/sq.ft."
+    },
+    {
+      "slug": "metro-mart-builders",
+      "name": "Metro Mart Builders",
+      "city": "Chennai",
+      "type": "semi",
+      "rate": 2100,
+      "min_area": 600,
+      "projects": 95,
+      "years": 9,
+      "rating": 4.1,
+      "reviews": 210,
+      "phone": "+91 98847 35018",
+      "areas": "All Chennai + Chengalpattu districts",
+      "inclusions": [
+        "RCC structure (foundation to slab)",
+        "Brick work and complete plastering",
+        "Waterproofing for terrace & bathrooms",
+        "Owner purchases finishes & fittings directly"
+      ],
+      "note": "Semi-turnkey: structure & civil work only — ideal if you want to control finish material costs."
+    },
+    {
+      "slug": "greentree-construction",
+      "name": "GreenTree Construction",
+      "city": "Coimbatore",
+      "type": "turnkey",
+      "rate": 2150,
+      "min_area": 700,
+      "projects": 54,
+      "years": 12,
+      "rating": 4.3,
+      "reviews": 147,
+      "phone": "+91 98430 28741",
+      "areas": "Coimbatore — Saravanampatti, Koundampalayam, Trichy Road",
+      "inclusions": [
+        "RCC structure with IS-certified M-sand & jelly",
+        "Wire-cut brick walls + plastering",
+        "Vitrified flooring & skirting",
+        "Basic plumbing & electrical points",
+        "Interior emulsion painting"
+      ],
+      "note": "Uses locally sourced AAC blocks for added thermal comfort at nominal extra cost."
+    },
+    {
+      "slug": "kovai-dream-homes",
+      "name": "Kovai Dream Homes",
+      "city": "Coimbatore",
+      "type": "turnkey",
+      "rate": 2500,
+      "min_area": 900,
+      "projects": 27,
+      "years": 8,
+      "rating": 4.5,
+      "reviews": 86,
+      "phone": "+91 98432 56109",
+      "areas": "Coimbatore city & suburbs",
+      "inclusions": [
+        "Turnkey construction with 3D elevation design",
+        "Premium tiles & sanitary ware",
+        "Modular kitchen with chimney & hob",
+        "Solar water heater provision",
+        "Rainwater harvesting & compound gate"
+      ],
+      "note": "Free site visit & detailed BOQ before signing."
+    },
+    {
+      "slug": "thendral-constructions",
+      "name": "Thendral Constructions",
+      "city": "Madurai",
+      "type": "turnkey",
+      "rate": 2050,
+      "min_area": 600,
+      "projects": 71,
+      "years": 14,
+      "rating": 4.2,
+      "reviews": 162,
+      "phone": "+91 98421 46830",
+      "areas": "Madurai, Thirumangalam, Usilampatti",
+      "inclusions": [
+        "Complete RCC structure",
+        "Country brick / fly-ash brick walls",
+        "Standard flooring & painting",
+        "Electrical & plumbing (concealed)",
+        "Compound wall frontage (10 ft)"
+      ],
+      "note": "Popular for budget G+1 homes on the Madurai outskirts."
+    },
+    {
+      "slug": "pandian-labour-contractors",
+      "name": "Pandian Labour Contractors",
+      "city": "Madurai",
+      "type": "labour",
+      "rate": 550,
+      "min_area": 500,
+      "projects": 130,
+      "years": 20,
+      "rating": 4.0,
+      "reviews": 240,
+      "phone": "+91 98425 72916",
+      "areas": "Madurai, Dindigul, Theni, Sivagangai",
+      "inclusions": [
+        "Skilled masons, bar benders & helpers",
+        "Centering & shuttering work",
+        "All labour for civil works",
+        "Owner supplies all materials"
+      ],
+      "note": "Labour-only contract — cheapest route if you can manage material purchase yourself (see our Material Calculator)."
+    },
+    {
+      "slug": "rockcity-builders",
+      "name": "Rockcity Builders",
+      "city": "Tiruchirappalli",
+      "type": "turnkey",
+      "rate": 2300,
+      "min_area": 750,
+      "projects": 44,
+      "years": 10,
+      "rating": 4.3,
+      "reviews": 118,
+      "phone": "+91 94431 65209",
+      "areas": "Trichy — Thillai Nagar, KK Nagar, Anna Nagar, Thuvakudi",
+      "inclusions": [
+        "RCC structure + wire-cut brick work",
+        "Vitrified tile flooring (₹85/sq.ft grade)",
+        "Full electrical & plumbing with branded fittings",
+        "Interior & exterior painting",
+        "Overhead tank + sump provision"
+      ],
+      "note": "Approval assistance (DTCP/CRZ) available at actuals."
+    },
+    {
+      "slug": "cauvery-construction-co",
+      "name": "Cauvery Construction Co.",
+      "city": "Tiruchirappalli",
+      "type": "semi",
+      "rate": 1950,
+      "min_area": 600,
+      "projects": 58,
+      "years": 16,
+      "rating": 4.1,
+      "reviews": 133,
+      "phone": "+91 98435 30741",
+      "areas": "Trichy, Srirangam, Karur, Perambalur",
+      "inclusions": [
+        "Structure + masonry + plastering",
+        "Terrace waterproofing",
+        "Basic electrical conduit laying",
+        "Finishes by owner"
+      ],
+      "note": "Good option when you already have materials from your own quarry/dealer contacts."
+    },
+    {
+      "slug": "steel-city-builders",
+      "name": "Steel City Builders",
+      "city": "Salem",
+      "type": "turnkey",
+      "rate": 2200,
+      "min_area": 700,
+      "projects": 36,
+      "years": 9,
+      "rating": 4.2,
+      "reviews": 91,
+      "phone": "+91 98428 50367",
+      "areas": "Salem, Erode, Namakkal",
+      "inclusions": [
+        "Complete structure with branded steel",
+        "Standard finishes & fittings",
+        "Painting (interior + exterior)",
+        "Basic woodwork — main door frame & shutters"
+      ],
+      "note": "Steel-frame construction packages also available on request."
+    },
+    {
+      "slug": "nellai-housing",
+      "name": "Nellai Housing",
+      "city": "Tirunelveli",
+      "type": "turnkey",
+      "rate": 2100,
+      "min_area": 600,
+      "projects": 49,
+      "years": 13,
+      "rating": 4.0,
+      "reviews": 104,
+      "phone": "+91 98423 64852",
+      "areas": "Tirunelveli, Palayamkottai, Tuticorin",
+      "inclusions": [
+        "RCC structure + brick work",
+        "Flooring & painting",
+        "Electrical & plumbing points",
+        "Sump + overhead tank"
+      ],
+      "note": "Coastal-area packages (Tuticorin) use corrosion-resistant TMT — ask for CRS grade."
+    },
+    {
+      "slug": "royal-nest-constructions",
+      "name": "Royal Nest Constructions",
+      "city": "Vellore",
+      "type": "turnkey",
+      "rate": 2500,
+      "min_area": 900,
+      "projects": 22,
+      "years": 7,
+      "rating": 4.4,
+      "reviews": 67,
+      "phone": "+91 98429 81534",
+      "areas": "Vellore, Katpadi, Ranipet, Arcot",
+      "inclusions": [
+        "Turnkey with premium elevation work",
+        "Designer main door & windows",
+        "Modular kitchen & wardrobes",
+        "Landscaping & driveway"
+      ],
+      "note": "Sample listing — premium segment; site visit arranged within 48 hours."
+    }
+  ]
+}

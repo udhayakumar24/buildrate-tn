@@ -21,7 +21,8 @@ python3 app.py
 | 🔍 Search & filter | By material, store, city, or category — Tamil names searchable too |
 | 🇮🇳 Bilingual UI | One tap switches the entire interface between English and Tamil |
 | ❤️ Favourites | Save materials & stores (persists in the browser) |
-| 🧮 Construction calculator | Estimate material quantities & cost by built-up area, quality tier, floors and wall material — rates pulled live from the app's price data |
+| 🧮 Construction calculator | Material estimate (built-up area, quality tier, floors, wall material) + **Home Loan EMI calculator** (cost, down payment, rate, tenure → EMI, total interest, principal-vs-interest split) |
+| 🏗️ Builders directory | 12 sample builders across 7 TN cities with turnkey / semi-turnkey / labour package rates (₹550–₹2,800 per sq.ft), inclusions, service areas — filter by city & package type |
 
 ## Project layout
 
@@ -30,7 +31,8 @@ buildrate-tn/
 ├── app.py                 # zero-dependency server (http.server) + JSON API
 ├── data/
 │   ├── materials.json     # 31 materials: prices, brands, specs, keywords
-│   └── stores.json        # 14 stores: contact, hours, per-material prices
+│   ├── stores.json        # 14 stores: contact, hours, per-material prices
+│   └── builders.json      # 12 builders: package rates, inclusions, service areas
 └── static/
     ├── index.html         # app shell (phone-frame layout)
     ├── css/style.css      # mobile-first styling
@@ -46,6 +48,8 @@ buildrate-tn/
 | `GET /api/materials/<slug>` | detail + brands + stores selling it |
 | `GET /api/stores?q=&city=` | store list |
 | `GET /api/stores/<slug>` | store detail + priced material list |
+| `GET /api/builders?q=&city=&type=` | builder list |
+| `GET /api/builders/<slug>` | builder detail (rate, inclusions, contact) |
 
 ## Updating prices
 

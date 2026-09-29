@@ -26,11 +26,14 @@ def build():
         "/api/meta": core.api_meta(mdoc, sdoc),
         "/api/materials": core.api_materials(mdoc, sdoc, {}),
         "/api/stores": core.api_stores(mdoc, sdoc, {}),
+        "/api/builders": core.api_builders({}),
     }
     for slug, m in by_slug.items():
         data["/api/materials/" + slug] = core.material_detail(m, stores)
     for s in stores:
         data["/api/stores/" + s["slug"]] = core.store_detail(s, by_slug)
+    for b in core._load_builders().get("builders", []):
+        data["/api/builders/" + b["slug"]] = core.builder_detail(b)
 
     # '</' would terminate the <script> tag — escape it inside the JSON string
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")

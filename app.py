@@ -136,6 +136,65 @@ def store_detail(s, materials_by_slug):
     return d
 
 
+BUILDER_TYPES = [
+    {"id": "turnkey", "name": "Turnkey", "name_ta": "முழு பேக்கேஜ்"},
+    {"id": "semi", "name": "Semi-turnkey", "name_ta": "அரை பேக்கேஜ்"},
+    {"id": "labour", "name": "Labour only", "name_ta": "வேலை மட்டும்"},
+]
+
+
+def _load_builders():
+    try:
+        return _load("builders.json")
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"builders": []}
+
+
+def builder_summary(b):
+    return {
+        "slug": b["slug"],
+        "name": b["name"],
+        "city": b["city"],
+        "type": b["type"],
+        "rate": b["rate"],
+        "min_area": b.get("min_area"),
+        "projects": b.get("projects"),
+        "years": b.get("years"),
+        "rating": b.get("rating"),
+        "reviews": b.get("reviews"),
+    }
+
+
+def builder_detail(b):
+    d = builder_summary(b)
+    d.update({
+        "phone": b.get("phone", ""),
+        "areas": b.get("areas", ""),
+        "inclusions": b.get("inclusions", []),
+        "note": b.get("note", ""),
+    })
+    return d
+
+
+def api_builders(query):
+    bdoc = _load_builders()
+    q = (query.get("q") or [""])[0].strip().lower()
+    city = (query.get("city") or [""])[0].strip()
+    btype = (query.get("type") or [""])[0].strip()
+    out = []
+    for b in bdoc.get("builders", []):
+        if city and b["city"] != city:
+            continue
+        if btype and b["type"] != btype:
+            continue
+        if q:
+            hay = " ".join([b["name"], b["city"], b.get("type", ""), b.get("areas", "")]).lower()
+            if q not in hay:
+                continue
+        out.append(builder_summary(b))
+    return {"count": len(out), "builders": out}
+
+
 def material_detail(m, stores):
     d = material_summary(m)
     sellers = []
@@ -172,6 +231,7 @@ def api_meta(mdoc, sdoc):
     counts = {}
     for m in materials:
         counts[m["category"]] = counts.get(m["category"], 0) + 1
+    bdoc = _load_builders()
     return {
         "updated": mdoc.get("updated"),
         "note": mdoc.get("note", ""),
@@ -179,6 +239,9 @@ def api_meta(mdoc, sdoc):
         "cities": sorted({s["city"] for s in sdoc["stores"]}),
         "material_count": len(materials),
         "store_count": len(sdoc["stores"]),
+        "builder_types": BUILDER_TYPES,
+        "builder_cities": sorted({b["city"] for b in bdoc.get("builders", [])}),
+        "builder_count": len(bdoc.get("builders", [])),
     }
 
 
@@ -285,6 +348,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json(material_detail(m, stores))
         elif path == "/api/stores":
             self.send_json(api_stores(mdoc, sdoc, query))
+        elif path == "/api/builders":
+            self.send_json(api_builders(query))
+        elif path.startswith("/api/builders/"):
+            slug = path[len("/api/builders/"):]
+            bdoc = _load_builders()
+            b = next((x for x in bdoc.get("builders", []) if x["slug"] == slug), None)
+            if not b:
+                self.send_json({"error": "builder not found", "slug": slug}, 404)
+            else:
+                self.send_json(builder_detail(b))
         elif path.startswith("/api/stores/"):
             slug = path[len("/api/stores/"):]
             s = next((x for x in stores if x["slug"] == slug), None)
@@ -299,11 +372,12 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     mdoc, sdoc = get_data()
+    bcount = len(_load_builders().get("builders", []))
     print("=" * 54)
     print("  BuildRate TN — Construction material prices, Tamil Nadu")
     print(f"  http://0.0.0.0:{PORT}")
     print(f"  {len(mdoc['materials'])} materials | {len(sdoc['stores'])} stores"
-          f" | updated {mdoc.get('updated')}")
+          f" | {bcount} builders | updated {mdoc.get('updated')}")
     print("  Pure Python stdlib — no dependencies. Ctrl+C to stop.")
     print("=" * 54)
     try:
