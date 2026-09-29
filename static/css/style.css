@@ -565,6 +565,12 @@ body {
   align-items: flex-end;
   justify-content: center;
 }
+
+/* CRITICAL: the `hidden` attribute must always win over our display rules —
+   otherwise an invisible backdrop covers the whole app and eats all taps */
+.sheet-backdrop[hidden], .sheet[hidden], .toast[hidden], #fatalErr[hidden] {
+  display: none !important;
+}
 .sheet {
   width: 100%;
   max-width: 480px;
