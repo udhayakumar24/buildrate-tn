@@ -36,10 +36,15 @@
     if (!l || typeof l !== 'object') l = {};
     state.loan = {
       lakh: isFinite(+l.lakh) && +l.lakh >= 3 ? +l.lakh : 30,
-      dp: [10, 15, 20, 25, 30].indexOf(+l.dp) >= 0 ? +l.dp : 20,
+      dp: isFinite(+l.dp) && +l.dp >= 1 && +l.dp <= 90 ? +l.dp : 20,
       rate: isFinite(+l.rate) && +l.rate > 1 && +l.rate < 30 ? +l.rate : 8.5,
-      years: [10, 15, 20, 25, 30].indexOf(+l.years) >= 0 ? +l.years : 20
+      years: isFinite(+l.years) && +l.years >= 1 && +l.years <= 40 ? +l.years : 20,
+      prepayMode: l.prepayMode === 'monthly' ? 'monthly' : 'lump',
+      lumpAmt: isFinite(+l.lumpAmt) && +l.lumpAmt >= 0 ? +l.lumpAmt : 100000,
+      lumpYear: isFinite(+l.lumpYear) && +l.lumpYear >= 0 && +l.lumpYear <= 39 ? +l.lumpYear : 1,
+      extraEmi: isFinite(+l.extraEmi) && +l.extraEmi >= 0 ? +l.extraEmi : 2000
     };
+    state.loan.lumpYear = Math.min(state.loan.lumpYear, state.loan.years - 1);
   })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
@@ -177,7 +182,26 @@
       yrs: 'yrs',
       principal: 'Principal',
       interest: 'Interest',
-      loan_note: 'Estimate only — actual EMI depends on your bank, CIBIL score, processing fee and eligibility. Home loan rates in India currently hover around 8.3–9.5% p.a.'
+      loan_note: 'Estimate only — actual EMI depends on your bank, CIBIL score, processing fee and eligibility. Home loan rates in India currently hover around 8.3–9.5% p.a.',
+      yr: 'yr',
+      mo_short: 'mo',
+      orig_short: 'orig',
+      prepay_title: 'Prepayment calculator',
+      prepay_lump: 'One-time lumpsum',
+      prepay_monthly: 'Extra every month',
+      prepay_amount: 'Prepayment amount',
+      prepay_after: 'Pay it after',
+      prepay_extra: 'Extra amount with EMI',
+      prepay_savings: 'Prepayment savings',
+      interest_saved: 'Interest saved',
+      tenure_cut: 'Tenure cut by',
+      loan_closes: 'Loan closes in',
+      new_total_interest: 'New total interest',
+      emi_if_tenure_kept: 'EMI if tenure kept',
+      yr_schedule: 'Year-wise payment schedule (with prepayment)',
+      col_year: 'Year',
+      col_balance: 'Balance',
+      prepay_note: 'Most banks charge no prepayment fee on floating-rate home loans; fixed-rate loans may charge 2–4%. The prepayment is assumed to go fully towards principal.'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -301,7 +325,26 @@
       yrs: 'ஆண்டு',
       principal: 'அசல்',
       interest: 'வட்டி',
-      loan_note: 'மதிப்பீடு மட்டும் — உண்மை EMI வங்கி, CIBIL மதிப்பெண், செயலாக்க கட்டணம் பொறுத்தது. இந்தியாவில் வீட்டுக் கடா வட்டி தற்போது சுமார் 8.3–9.5% ஆண்டுக்கு.'
+      loan_note: 'மதிப்பீடு மட்டும் — உண்மை EMI வங்கி, CIBIL மதிப்பெண், செயலாக்க கட்டணம் பொறுத்தது. இந்தியாவில் வீட்டுக் கடா வட்டி தற்போது சுமார் 8.3–9.5% ஆண்டுக்கு.',
+      yr: 'ஆண்டு',
+      mo_short: 'மாத',
+      orig_short: 'முதலில்',
+      prepay_title: 'முன்செலுத்தல் கணக்கீடு',
+      prepay_lump: 'ஒருமுறை தொகை',
+      prepay_monthly: 'மாதம்தோறும் கூடுதல்',
+      prepay_amount: 'முன்செலுத்தல் தொகை',
+      prepay_after: 'இத்தனை ஆண்டுகளுக்குப் பிறகு',
+      prepay_extra: 'EMI-உடன் சேர்த்து செலுத்தும் தொகை',
+      prepay_savings: 'முன்செலுத்தல் சேமிப்பு',
+      interest_saved: 'வட்டி சேமிப்பு',
+      tenure_cut: 'காலம் குறையும் அளவு',
+      loan_closes: 'கடா முடிவடையும் காலம்',
+      new_total_interest: 'புதிய மொத்த வட்டி',
+      emi_if_tenure_kept: 'காலம் மாறாமல் இருந்தால் EMI',
+      yr_schedule: 'ஆண்டுவாரி பணமுடக்க அட்டவணை (முன்செலுத்தலுடன்)',
+      col_year: 'ஆண்டு',
+      col_balance: 'மீதத் தொகை',
+      prepay_note: 'மித வட்டி (floating) வீட்டுக் கடாக்களில் பெரும்பாலான வங்கிகள் முன்செலுத்தல் கட்டணம் வசூலிப்பதில்லை; நிலை வட்டி (fixed) கடாக்களில் 2–4% வரை இருக்கலாம். முன்செலுத்தப்படும் தொகை முழுவதும் அசலில் சேர்க்கப்படும் என்று கருதப்படுகிறது.'
     }
   };
   function t(key, n, m) {
@@ -1007,11 +1050,76 @@
     };
   }
 
-  function loanSeg(key, opts, fmtLabel) {
-    return '<div class="chiprow">' + opts.map(function (o) {
-      var active = state.loan[key] === o ? ' active' : '';
-      return '<button class="chip' + active + '" data-action="loanset" data-key="' + key + '" data-val="' + o + '">' + esc(fmtLabel(o)) + '</button>';
-    }).join('') + '</div>';
+  function fmtMos(m) {
+    var y = Math.floor(m / 12), mo = m % 12, s = '';
+    if (y) s += y + ' ' + t(y === 1 ? 'yr' : 'yrs');
+    if (mo) s += (y ? ' ' : '') + mo + ' ' + t('mo_short');
+    return s || '0';
+  }
+
+  /* prepayment simulation: lumpsum after N years, or extra ₹ with every EMI */
+  function loanPrepay() {
+    var L = state.loan, base = loanCalc();
+    var r = L.rate / 1200, emi = base.emi, n = base.n, loan = base.loan;
+    var out = { active: false, mode: L.prepayMode, newN: n, monthsSaved: 0, intSaved: 0,
+      newTotalInt: base.totalInt, newTotalRepay: base.totalRepay, reducedEmi: null, rows: [] };
+    var lump = L.prepayMode === 'lump' ? Math.max(0, +L.lumpAmt || 0) : 0;
+    var extra = L.prepayMode === 'monthly' ? Math.max(0, +L.extraEmi || 0) : 0;
+    if (loan <= 0 || (lump <= 0 && extra <= 0)) return out;
+    var lumpMonth = Math.min(Math.round(Math.max(0, +L.lumpYear || 0)) * 12 + 1, n);
+    var B = loan, m = 0, intTot = 0, paidTot = 0, yp = 0, yi = 0, BafterLump = null;
+    while (B > 0.005 && m <= n) {
+      m++;
+      var iM = B * r;
+      var pay = Math.min(emi + extra, B + iM);
+      var prM = pay - iM;
+      B -= prM; if (B < 0) B = 0;
+      paidTot += pay; intTot += iM; yp += prM; yi += iM;
+      if (lump > 0 && m === lumpMonth) {
+        var lumpApply = Math.min(lump, B);
+        if (lumpApply > 0) { B -= lumpApply; paidTot += lumpApply; yp += lumpApply; }
+        BafterLump = B;
+      }
+      if (m % 12 === 0 || B <= 0.005) { out.rows.push({ yr: Math.ceil(m / 12), p: yp, i: yi, bal: B }); yp = 0; yi = 0; }
+    }
+    if (B > 0.005) return out;
+    out.active = true;
+    out.newN = m;
+    out.monthsSaved = Math.max(0, n - m);
+    out.newTotalInt = intTot;
+    out.newTotalRepay = paidTot;
+    out.intSaved = Math.max(0, base.totalInt - intTot);
+    if (lump > 0 && BafterLump != null && lumpMonth < n) {
+      var remN = n - lumpMonth;
+      if (BafterLump <= 0.005) out.reducedEmi = 0;
+      else { var f2 = Math.pow(1 + r, remN); out.reducedEmi = BafterLump * r * f2 / (f2 - 1); }
+    }
+    return out;
+  }
+
+  function prepayHtml(base) {
+    var pp = loanPrepay();
+    if (!pp.active) return '';
+    var rows = pp.rows.map(function (row) {
+      return '<tr><td>' + row.yr + '</td><td>' + fmt(Math.round(row.p)) + '</td><td>' + fmt(Math.round(row.i)) + '</td><td>' + fmt(Math.round(row.bal)) + '</td></tr>';
+    }).join('');
+    var alt = '';
+    if (pp.mode === 'lump' && pp.reducedEmi != null && pp.reducedEmi > 0) {
+      alt = '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('emi_if_tenure_kept')) + ':</b> ' +
+        fmt(Math.round(pp.reducedEmi)) + ' <small>(' + esc(t('per_month')) + ' · ' + esc(t('orig_short')) + ' ' + fmt(Math.round(base.emi)) + ')</small></span></div>';
+    }
+    return '<div class="card panel"><h3>' + ICONS.chart + ' ' + esc(t('prepay_savings')) + '</h3>' +
+      '<div class="savingsBox">💰 <b>' + esc(t('interest_saved')) + ':</b> ' + fmt(Math.round(pp.intSaved)) + '</div>' +
+      '<div class="inforow">' + ICONS.chart + '<span><b>' + esc(t('tenure_cut')) + ':</b> ' + esc(fmtMos(pp.monthsSaved)) + '</span></div>' +
+      '<div class="inforow">' + ICONS.chart + '<span><b>' + esc(t('loan_closes')) + ':</b> ' + esc(fmtMos(pp.newN)) +
+      ' <small>(' + esc(t('orig_short')) + ' ' + state.loan.years + ' ' + esc(t('yrs')) + ')</small></span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('new_total_interest')) + ':</b> ' + fmt(Math.round(pp.newTotalInt)) +
+      ' <small>(' + esc(t('orig_short')) + ' ' + fmt(Math.round(base.totalInt)) + ')</small></span></div>' + alt +
+      '<label class="plabel" style="margin-top:12px">' + esc(t('yr_schedule')) + '</label>' +
+      '<div class="amortwrap"><table class="amort"><thead><tr>' +
+      '<th>' + esc(t('col_year')) + '</th><th>' + esc(t('principal')) + '</th><th>' + esc(t('interest')) + '</th><th>' + esc(t('col_balance')) + '</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="notecard">💡 ' + esc(t('prepay_note')) + '</div></div>';
   }
 
   function loanResultsHtml(r) {
@@ -1019,7 +1127,7 @@
     return '<div class="hero"><span class="catpill">' + esc(t('monthly_emi')) + '</span>' +
       '<div class="herosplit"><strong>' + fmt(Math.round(r.emi)) + '</strong><span>' + esc(t('per_month')) + '</span></div>' +
       '<div class="herofoot"><span class="badge onDark flat">' + esc(t('loan_amount')) + ': ' + fmt(Math.round(r.loan)) + '</span>' +
-      '<span class="badge onDark flat">' + state.loan.years + ' ' + esc(t('yrs')) + ' · ' + state.loan.rate + '%</span></div></div>' +
+      '<span class="badge onDark flat">' + state.loan.years + ' ' + esc(t(state.loan.years === 1 ? 'yr' : 'yrs')) + ' · ' + state.loan.rate + '%</span></div></div>' +
 
       '<div class="card panel"><h3>' + ICONS.chart + ' ' + esc(t('breakdown')) + '</h3>' +
       '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('property_cost')) + ':</b> ' + fmt(Math.round(r.cost)) + '</span></div>' +
@@ -1030,7 +1138,8 @@
       '<div class="splitbar"><i class="s1" style="width:' + (100 - intPct) + '%"></i><i class="s2" style="width:' + intPct + '%"></i></div>' +
       '<div class="splitlegend"><span><i class="s1" style="background:var(--navy-3)"></i>' + esc(t('principal')) + ' ' + (100 - intPct) + '%</span>' +
       '<span><i class="s2" style="background:var(--accent)"></i>' + esc(t('interest')) + ' ' + intPct + '%</span></div>' +
-      '<div class="notecard">💡 ' + esc(t('loan_note')) + '</div></div>';
+      '<div class="notecard">💡 ' + esc(t('loan_note')) + '</div></div>' +
+      prepayHtml(r);
   }
 
   function viewCalcLoan() {
@@ -1054,7 +1163,11 @@
       }).join('') + '</div></div>' +
 
       '<div class="card calcpanel"><label class="plabel">' + esc(t('down_payment')) + '</label>' +
-      loanSeg('dp', [10, 15, 20, 25, 30], function (o) { return o.v + '%'; }) + '</div>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="dp" data-delta="-5" aria-label="minus">−</button>' +
+      '<input id="loanDp" class="areainput" type="number" inputmode="numeric" min="1" max="90" step="1" value="' + L.dp + '" aria-label="down payment percent">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="dp" data-delta="5" aria-label="plus">+</button>' +
+      '<span class="unitlbl">%</span></div></div>' +
 
       '<div class="card calcpanel"><label class="plabel">' + esc(t('interest_rate')) + '</label>' +
       '<div class="stepper">' +
@@ -1064,7 +1177,36 @@
       '<span class="unitlbl">% p.a.</span></div></div>' +
 
       '<div class="card calcpanel"><label class="plabel">' + esc(t('loan_tenure')) + '</label>' +
-      loanSeg('years', [10, 15, 20, 25, 30], function (o) { return o.v + ' ' + t('yrs'); }) + '</div>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="years" data-delta="-1" aria-label="minus">−</button>' +
+      '<input id="loanYears" class="areainput" type="number" inputmode="numeric" min="1" max="40" step="1" value="' + L.years + '" aria-label="tenure in years">' +
+      '<button class="stepbtn" data-action="loanstep" data-key="years" data-delta="1" aria-label="plus">+</button>' +
+      '<span class="unitlbl">' + esc(t('yrs')) + '</span></div></div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('prepay_title')) + '</label>' +
+      '<div class="chiprow" style="margin-bottom:8px">' +
+      '<button class="chip' + (L.prepayMode === 'lump' ? ' active' : '') + '" data-action="loanprepaymode" data-val="lump">' + esc(t('prepay_lump')) + '</button>' +
+      '<button class="chip' + (L.prepayMode === 'monthly' ? ' active' : '') + '" data-action="loanprepaymode" data-val="monthly">' + esc(t('prepay_monthly')) + '</button></div>' +
+      (L.prepayMode === 'lump'
+        ? '<label class="plabel" style="margin-top:6px">' + esc(t('prepay_amount')) + '</label>' +
+          '<div class="stepper">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="lumpAmt" data-delta="-50000" aria-label="minus">−</button>' +
+          '<input id="loanLump" class="areainput" type="number" inputmode="numeric" min="0" step="10000" value="' + L.lumpAmt + '" aria-label="prepayment amount">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="lumpAmt" data-delta="50000" aria-label="plus">+</button>' +
+          '<span class="unitlbl">₹</span></div>' +
+          '<label class="plabel" style="margin-top:10px">' + esc(t('prepay_after')) + '</label>' +
+          '<div class="stepper">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="lumpYear" data-delta="-1" aria-label="minus">−</button>' +
+          '<input id="loanLumpYr" class="areainput" type="number" inputmode="numeric" min="0" max="' + (L.years - 1) + '" step="1" value="' + Math.min(L.lumpYear, L.years - 1) + '" aria-label="pay after this many years">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="lumpYear" data-delta="1" aria-label="plus">+</button>' +
+          '<span class="unitlbl">' + esc(t('yrs')) + '</span></div>'
+        : '<label class="plabel" style="margin-top:6px">' + esc(t('prepay_extra')) + '</label>' +
+          '<div class="stepper">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="extraEmi" data-delta="-500" aria-label="minus">−</button>' +
+          '<input id="loanExtra" class="areainput" type="number" inputmode="numeric" min="0" step="500" value="' + L.extraEmi + '" aria-label="extra monthly amount">' +
+          '<button class="stepbtn" data-action="loanstep" data-key="extraEmi" data-delta="500" aria-label="plus">+</button>' +
+          '<span class="unitlbl">₹/' + esc(t('mo_short')) + '</span></div>'
+      ) + '</div>' +
 
       '<div id="loanResults"></div>';
 
@@ -1155,12 +1297,21 @@
         break;
       case 'loanstep': {
         var key = el.dataset.key, d = +el.dataset.delta;
-        if (key === 'lakh') state.loan.lakh = Math.max(3, Math.min(500, state.loan.lakh + d));
-        if (key === 'rate') state.loan.rate = Math.round(Math.max(4, Math.min(20, state.loan.rate + d)) * 100) / 100;
-        persistSet('br_loan', state.loan);
+        var lim = { lakh: [3, 500], dp: [1, 90], rate: [4, 20], years: [1, 40], lumpAmt: [0, 100000000], lumpYear: [0, 39], extraEmi: [0, 1000000] }[key];
+        if (lim) {
+          var v = Math.max(lim[0], Math.min(lim[1], (+state.loan[key] || 0) + d));
+          state.loan[key] = (key === 'rate') ? Math.round(v * 100) / 100 : Math.round(v);
+          if (key === 'years') state.loan.lumpYear = Math.min(state.loan.lumpYear, state.loan.years - 1);
+          persistSet('br_loan', state.loan);
+        }
         render();
         break;
       }
+      case 'loanprepaymode':
+        state.loan.prepayMode = el.dataset.val === 'monthly' ? 'monthly' : 'lump';
+        persistSet('br_loan', state.loan);
+        render();
+        break;
       case 'calcset':
         state.calc[el.dataset.key] = el.dataset.val;
         persistSet('br_calc', state.calc);
@@ -1220,6 +1371,47 @@
       var rt = parseFloat(e.target.value);
       if (!isNaN(rt) && rt >= 4 && rt <= 20) {
         state.loan.rate = rt;
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanDp') {
+      var dpv = parseFloat(e.target.value);
+      if (!isNaN(dpv) && dpv >= 1 && dpv <= 90) {
+        state.loan.dp = dpv;
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanYears') {
+      var yrv = parseInt(e.target.value, 10);
+      if (!isNaN(yrv) && yrv >= 1 && yrv <= 40) {
+        state.loan.years = yrv;
+        state.loan.lumpYear = Math.min(state.loan.lumpYear, yrv - 1);
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanLump') {
+      var la = parseInt(e.target.value, 10);
+      if (!isNaN(la) && la >= 0) {
+        state.loan.lumpAmt = Math.min(100000000, la);
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanLumpYr') {
+      var ly = parseInt(e.target.value, 10);
+      if (!isNaN(ly) && ly >= 0 && ly <= 39) {
+        state.loan.lumpYear = ly;
+        persistSet('br_loan', state.loan);
+        if (updaters.loan) updaters.loan();
+      }
+    }
+    if (e.target.id === 'loanExtra') {
+      var ex = parseInt(e.target.value, 10);
+      if (!isNaN(ex) && ex >= 0) {
+        state.loan.extraEmi = Math.min(1000000, ex);
         persistSet('br_loan', state.loan);
         if (updaters.loan) updaters.loan();
       }
