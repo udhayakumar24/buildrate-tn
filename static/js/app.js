@@ -63,6 +63,16 @@
     var h = persistGet('br_chat', null);
     if (Array.isArray(h)) state.chat.msgs = h.slice(-40);
   })();
+  state.llm = { p: 'gemini', key: '', model: '', url: '' };
+  (function initLlm() {
+    var l = persistGet('br_llm', null);
+    if (l && typeof l === 'object') {
+      state.llm.p = ['gemini', 'openrouter', 'groq', 'custom'].indexOf(l.p) >= 0 ? l.p : 'gemini';
+      state.llm.key = typeof l.key === 'string' ? l.key : '';
+      state.llm.model = typeof l.model === 'string' ? l.model : '';
+      state.llm.url = typeof l.url === 'string' ? l.url : '';
+    }
+  })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
     if (!c || typeof c !== 'object') c = {};
@@ -251,11 +261,21 @@
       ai_sub: 'Construction help · works offline',
       ai_placeholder: 'Ask about construction…',
       ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — ask me about material prices, Chennai builders, EMI & prepayment, thumb rules (cement bags, steel kg, sand), vastu, approvals, waterproofing… anything about building a home in Tamil Nadu.",
-      ai_fallback: "I'm a small offline assistant built into this app. I know its material prices, builders & calculators, plus construction basics — thumb rules, curing, concrete grades, approvals, vastu, borewell, tiles, paint… Try one of these:",
+      ai_fallback: "I don't know that one offline. I can help with material prices, Chennai builders, EMI & prepayment, cost estimates (try \"3BHK G+1 cost breakdown\"), thumb rules, approvals, vastu… — or tap ⚙ and add a free API key to enable Full AI, which answers anything.",
       ai_open_materials: 'Open Materials',
       ai_open_builders: 'Open Builders',
       ai_open_stores: 'Open Stores',
-      ai_open_calc: 'Open Calculator'
+      ai_open_calc: 'Open Calculator',
+      ai_mode_full: 'Full AI',
+      ai_mode_off: 'Offline',
+      ai_cfg_title: 'Full AI mode (optional)',
+      ai_cfg_desc: 'Paste a free API key and I can answer ANY question — not just construction. Google Gemini keys are free (aistudio.google.com/apikey, Google account needed). Your key stays only on this device and is sent only to the provider you choose below.',
+      ai_cfg_key: 'API key',
+      ai_cfg_model: 'Model (optional)',
+      ai_cfg_url: 'API base URL',
+      ai_llm_save: 'Save',
+      ai_llm_clear: 'Remove key',
+      ai_llm_err: 'Full AI unavailable (check key / network) — offline answer:'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -431,11 +451,21 @@
       ai_sub: 'கட்டுமான உதவி · ஆஃப்லைன்',
       ai_placeholder: 'கட்டுமானம் பற்றி கேளுங்கள்…',
       ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், தம்புல் ரூல் (சிமெண்ட் மூட்டை, இரும்பு கிலோ, மணல்), வாஸ்து, ஒப்புதல், நீர்ப்புகாப்பு — தமிழ்நாட்டில் வீடு கட்டுவது பற்றி எதையும் கேளுங்கள்.',
-      ai_fallback: 'நான் இந்த ஆப்பில் உள்ள சிறிய ஆஃப்லைன் உதவியாளர் — பொருள் விலைகள், பில்டர்கள், கால்குலேட்டர், மேலும் தம்புல் ரூல், க்யூரிங், கான்கிரீட் கிரேடு, ஒப்புதல், வாஸ்து, கிணறு, ஓடு, பெயிண்ட் அடிப்படைகள் தெரியும். இவற்றை முயற்சிக்கவும்:',
+      ai_fallback: 'இதற்கு ஆஃப்லைனில் எனக்குத் தெரியாது. பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், செலவு மதிப்பீடு ("3BHK G+1 செலவு"), தம்புல் ரூல், ஒப்புதல், வாஸ்து பற்றி கேளுங்கள் — அல்லது ⚙ அழுத்தி இலவச API கீ சேர்த்து முழு AI முறையை இயக்குங்கள் (எதற்கும் பதில் தரும்).',
       ai_open_materials: 'பொருட்களைத் திற',
       ai_open_builders: 'பில்டர்களைத் திற',
       ai_open_stores: 'கடைகளைத் திற',
-      ai_open_calc: 'கால்குலேட்டரைத் திற'
+      ai_open_calc: 'கால்குலேட்டரைத் திற',
+      ai_mode_full: 'முழு AI',
+      ai_mode_off: 'ஆஃப்லைன்',
+      ai_cfg_title: 'முழு AI முறை (விருப்பம்)',
+      ai_cfg_desc: 'இலவச API கீவை ஒட்டினால் எந்தக் கேள்விக்கும் பதில் தர முடியும் — கட்டுமானம் மட்டும் அல்ல. Google Gemini கீ இலவசம் (aistudio.google.com/apikey, Google கணக்கு தேவை). உங்கள் கீ இந்த சாதனத்தில் மட்டுமே சேமிக்கப்படும்.',
+      ai_cfg_key: 'API கீ',
+      ai_cfg_model: 'மாடல் (விருப்பம்)',
+      ai_cfg_url: 'API அடிப்படை URL',
+      ai_llm_save: 'சேமி',
+      ai_llm_clear: 'கீவை நீக்கு',
+      ai_llm_err: 'முழு AI கிடைக்கவில்லை (கீ/இணையம் சரிபார்க்கவும்) — ஆஃப்லைன் பதில்:'
     }
   };
   function t(key, n, m) {
@@ -720,6 +750,48 @@
       };
     }
 
+    // BHK / duplex home cost with breakdown
+    var bhkM = qRaw.match(/([1-5])\s*-?\s*bhk/i);
+    var dplx = /duplex|டூப்ளக்ஸ்|டூப்ளெக்ஸ்/.test(qRaw.toLowerCase());
+    if ((bhkM || dplx) && has(['cost', 'price', 'how much', 'budget', 'estimate', 'build', 'செலவு', 'விலை', 'எவ்வளவு', 'கட்ட'])) {
+      var bhk = bhkM ? +bhkM[1] : 3;
+      var BHK_AREA = { 1: [450, 650], 2: [750, 1100], 3: [1150, 1600], 4: [1600, 2200], 5: [2000, 2600] };
+      var flm2 = qRaw.match(/g\s*\+\s*(\d)/i);
+      var floors2 = flm2 ? +flm2[1] + 1 : (dplx ? 2 : 1);
+      var sqm2 = qRaw.match(/(\d{3,5})\s*(?:sq|square|சதுர)/i);
+      var lo2, hi2;
+      if (sqm2) { lo2 = hi2 = Math.min(+sqm2[1], 100000); }
+      else { var rng2 = BHK_AREA[bhk] || BHK_AREA[3]; lo2 = rng2[0]; hi2 = rng2[1]; }
+      var mid2 = Math.round((lo2 + hi2) / 2);
+      var flLbl = floors2 === 1 ? L('ground-only', 'தரை தளம் மட்டும்') : (flm2 ? flm2[0].toUpperCase() : 'G+1') + ' ' + L('duplex', 'டூப்ளக்ஸ்');
+      var head;
+      if (sqm2) head = L('For a ' + bhk + 'BHK ' + flLbl + ' of ' + lo2.toLocaleString('en-IN') + ' sq.ft', bhk + 'BHK ' + flLbl + ' — ' + lo2.toLocaleString('en-IN') + ' சதுர அடி');
+      else head = L('A ' + bhk + 'BHK ' + flLbl + ' is typically ' + lo2.toLocaleString('en-IN') + '–' + hi2.toLocaleString('en-IN') + ' sq.ft total built-up', bhk + 'BHK ' + flLbl + ' வீடு பொதுவாக ' + lo2.toLocaleString('en-IN') + '–' + hi2.toLocaleString('en-IN') + ' சதுர அடி மொத்த பரப்பளவு');
+      var matRows = '';
+      var matTot = 0;
+      try {
+        var est2 = calcEstimate(mats, { area: mid2, tier: 's', floors: floors2 > 1 ? 'g1' : 'g', wall: 'red' });
+        matTot = est2.total;
+        matRows = est2.rows.slice(0, 5).map(function (r) {
+          return '• ' + (lang === 'ta' ? r.m.name_ta : r.m.name) + ' — ' + r.qtyLabel + ' ≈ ' + fmt(Math.round(r.cost));
+        }).join('\n');
+      } catch (e) { matTot = mid2 * 800; matRows = ''; }
+      var labour = Math.round(mid2 * 450);
+      var turnMid = 2000 * mid2;
+      var rest = Math.max(0, turnMid - matTot - labour);
+      return {
+        text: head + '. ' + L('At Chennai turnkey rates ₹1,800–2,500/sq.ft (Sep 2026):', 'சென்னை துர்ன்கீ விகிதம் ₹1,800–2,500/சதுர அடி (செப். 2026):') + '\n' +
+          '**' + L('Total', 'மொத்தம்') + ': ' + fmt(1800 * lo2) + ' – ' + fmt(2500 * hi2) + '**  (≈' + fmt(turnMid) + ' ' + L('at ₹2,000/sq.ft mid', 'சராசரி ₹2,000/சதுர அடியில்') + ')\n\n' +
+          L('Where the money goes (≈' + mid2.toLocaleString('en-IN') + ' sq.ft, standard quality):', 'பணம் எங்கே செல்கிறது (≈' + mid2.toLocaleString('en-IN') + ' சதுர அடி, சாதாரண தரம்):') + '\n' +
+          (matRows ? L('**Materials ≈ ' + fmt(Math.round(matTot)) + '**\n' + matRows + '\n', '**பொருட்கள் ≈ ' + fmt(Math.round(matTot)) + '**\n' + matRows + '\n') : '') +
+          '**' + L('Labour ≈ ' + fmt(labour), 'வேலையாட்கள் ≈ ' + fmt(labour)) + '** (' + L('₹450/sq.ft', '₹450/சதுர அடி') + ')\n' +
+          '**' + L('Finishes, supervision & margin ≈ ' + fmt(rest), 'முடித்தல் வேலை, மேற்பார்வை & லாபம் ≈ ' + fmt(rest)) + '**\n\n' +
+          L('Plus keep-aside extras (usually outside the package): compound wall ₹1.2–2.2L, EB ₹40–80k, borewell ₹1–1.8L, water sump ₹50–80k, septic ₹40–70k, approvals ₹80k–1.5L + 5% contingency.', 'மேலும் தனியாக வைக்க வேண்டியவை (பேக்கேஜில் வராதவை): சுற்றுசுவர் ₹1.2–2.2L, EB ₹40–80 ஆயிரம், கிணறு ₹1–1.8L, சம்ப் ₹50–80 ஆயிரம், செப்டிக் ₹40–70 ஆயிரம், ஒப்புதல் ₹80 ஆயிரம்–1.5L + 5% காப்புத்தொகை.') + '\n' +
+          L('Full budget with your exact rate: Calc → Builder rate.', 'உங்கள் விகிதத்துடன் முழு பட்ஜெட்: Calculator → Builder rate.'),
+        acts: [{ label: t('ai_open_calc'), hash: '#/calc' }, { label: t('ai_open_builders'), hash: '#/builders' }]
+      };
+    }
+
     // build cost estimate
     if (has(['sqft', 'sq ft', 'sq. ft', 'square feet', 'square foot', 'சதுர அடி']) &&
         !catHit && has(['build', 'house', 'home', 'construct', 'cost', 'price', 'estimate', 'கட்ட', 'வீடு', 'செலவு', 'விலை', 'எவ்வளவு'])) {
@@ -758,8 +830,116 @@
     ] };
   }
 
+  /* ---- Full AI mode (cloud LLM, user-provided key) ---- */
+  var LLM_PRESETS = {
+    gemini: { url: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash' },
+    openrouter: { url: 'https://openrouter.ai/api/v1', model: 'meta-llama/llama-3.3-70b-instruct:free' },
+    groq: { url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile' }
+  };
+
+  function llmSystem(mats, builders) {
+    var matLines = (mats || []).slice(0, 31).map(function (m) {
+      return '- ' + m.name + ': ₹' + m.price_avg + '/' + m.unit + ' (range ₹' + m.price_low + '-' + m.price_high + ', ' + (m.change_pct >= 0 ? '+' : '') + m.change_pct + '% this week)';
+    }).join('\n');
+    var b = (builders || []).filter(function (x) { return x.city === 'Chennai' && !x.sample && x.rate; });
+    var cheap = b.slice().sort(function (a, c) { return a.rate - c.rate; }).slice(0, 4)
+      .map(function (x) { return x.name + ' ₹' + x.rate + '/sq.ft'; }).join(', ');
+    return 'You are BuildRate AI, a friendly expert construction & home-building assistant inside the BuildRate TN app (Tamil Nadu, India). Today is Sep 2026.\n' +
+      'Rules: Answer in the same language the user writes (English or Tamil — mirror their mix). Use ₹ with Indian comma grouping (₹27,50,000 or 27.5 lakh). Be practical and specific to Tamil Nadu. When estimating costs, state assumptions (area, rate/sq.ft) and give ranges. Structure longer answers with short headers or bullets. You may answer any topic, but construction/home context is your specialty.\n\n' +
+      'App data snapshot (indicative, Sep 2026):\n' +
+      '- Chennai turnkey builders: ₹1,550-2,500/sq.ft. Lowest published: ' + (cheap || 'GPM ₹1,550') + '. Premium: Urban Space ₹2,499, buildAhome ₹2,299, Brick&Bolt ₹2,150.\n' +
+      '- Zone rates/sq.ft: central Chennai 2,600-3,200; south Chennai 2,300-2,700; OMR/ECR 2,400-2,900; peripheral DTCP (Guduvanchery/Sriperumbudur/Avadi/Chengalpattu) 1,900-2,300. Labour-only contracts: ₹350-450/sq.ft.\n' +
+      '- Material prices (Tamil Nadu averages):\n' + (matLines || '- cement ₹420/50kg bag, TMT steel ~₹75/kg, M-sand ~₹1,350/unit') + '\n' +
+      '- Thumb rules: cement ~0.4 bags/sq.ft; steel 3.5-4 kg/sq.ft; 1,000 sq.ft house ≈ 400 cement bags, 3.5-4 T steel.\n' +
+      '- Site extras usually OUTSIDE builder packages: compound wall ₹1.2-2.2L, EB connection ₹40-80k, borewell ₹1-1.8L, water sump ₹50-80k, septic ₹40-70k, CMDA/DTCP approvals ₹80k-1.5L; keep 5% contingency.\n' +
+      '- Home loans ~8.3-9.5% p.a. now; EMI example: ₹24L @8.5%, 20yrs → ₹20,828/month.\n' +
+      'The app contains: Materials price tracker, Stores, Builders directory (32 real Chennai firms with phones/websites), Calculator (material estimate, builder-rate budget with extras, loan EMI + prepayment schedule). Never invent phone numbers or builder names — refer users to the Builders tab for contacts.';
+  }
+
+  function llmChat(q, mats, builders) {
+    var cfg = state.llm;
+    var preset = LLM_PRESETS[cfg.p] || LLM_PRESETS.gemini;
+    var model = (cfg.model || preset.model).trim();
+    var base = (cfg.p === 'custom' && cfg.url ? cfg.url : preset.url).replace(/\/+$/, '');
+    var sys = llmSystem(mats, builders);
+    var hist = state.chat.msgs.filter(function (m) { return m.t && m.r; }).slice(-9, -1).map(function (m) {
+      return { r: m.r, t: m.t };
+    });
+    if (cfg.p === 'gemini') {
+      var contents = hist.concat([{ r: 'u', t: q }]).map(function (m) {
+        return { role: m.r === 'u' ? 'user' : 'model', parts: [{ text: m.t }] };
+      });
+      return fetch(base + '/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(cfg.key.trim()), {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: contents, generationConfig: { temperature: 0.4, maxOutputTokens: 1400 } })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        if (j.error) throw new Error(j.error.message || 'API error');
+        var txt = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts
+          ? j.candidates[0].content.parts.map(function (p) { return p.text || ''; }).join('') : '';
+        if (!txt) throw new Error('empty response');
+        return txt;
+      });
+    }
+    // OpenAI-compatible (OpenRouter / Groq / custom)
+    var msgs = [{ role: 'system', content: sys }]
+      .concat(hist.map(function (m) { return { role: m.r === 'u' ? 'user' : 'assistant', content: m.t }; }))
+      .concat([{ role: 'user', content: q }]);
+    return fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.key.trim() },
+      body: JSON.stringify({ model: model, temperature: 0.4, max_tokens: 1400, messages: msgs })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.error) throw new Error(j.error.message || 'API error');
+      var txt = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      if (!txt) throw new Error('empty response');
+      return txt;
+    });
+  }
+
+  function aiStatusRender() {
+    var el = document.getElementById('aiStatus');
+    if (!el) return;
+    var on = !!(state.llm && state.llm.key);
+    el.className = 'aiStatus' + (on ? ' on' : '');
+    el.textContent = (on ? '● ' + t('ai_mode_full') : '● ' + t('ai_mode_off'));
+  }
+
+  function aiCfgRender() {
+    var panel = document.getElementById('aiCfg');
+    if (!panel) return;
+    var provs = [['gemini', 'Google Gemini'], ['openrouter', 'OpenRouter'], ['groq', 'Groq'], ['custom', 'Custom (OpenAI-compatible)']];
+    var preset = LLM_PRESETS[state.llm.p] || LLM_PRESETS.gemini;
+    panel.innerHTML =
+      '<div class="aiCfgCard">' +
+      '<h3>⚙️ ' + esc(t('ai_cfg_title')) + '</h3>' +
+      '<p class="aiCfgDesc">' + esc(t('ai_cfg_desc')) + '</p>' +
+      '<label class="plabel">' + esc(t('ai_cfg_key')) + '</label>' +
+      '<input id="llmKey" class="aiCfgInput" type="password" autocomplete="off" placeholder="AIza… / sk-or-… / gsk_…" value="' + esc(state.llm.key) + '">' +
+      '<label class="plabel" style="margin-top:10px">' + esc('Provider') + '</label>' +
+      '<div class="chiprow">' + provs.map(function (p) {
+        return '<button class="chip' + (state.llm.p === p[0] ? ' active' : '') + '" data-action="llm-prov" data-val="' + p[0] + '">' + esc(p[1]) + '</button>';
+      }).join('') + '</div>' +
+      '<label class="plabel" style="margin-top:10px">' + esc(t('ai_cfg_model')) + '</label>' +
+      '<input id="llmModel" class="aiCfgInput" type="text" placeholder="' + esc(preset.model) + '" value="' + esc(state.llm.model) + '">' +
+      (state.llm.p === 'custom'
+        ? '<label class="plabel" style="margin-top:10px">' + esc(t('ai_cfg_url')) + '</label>' +
+          '<input id="llmUrl" class="aiCfgInput" type="text" placeholder="https://…/v1" value="' + esc(state.llm.url) + '">'
+        : '<p class="aiCfgUrl">' + esc(preset.url) + '</p>') +
+      '<div class="aiCfgBtns">' +
+      '<button class="btn primary" data-action="llm-save">' + esc(t('ai_llm_save')) + '</button>' +
+      (state.llm.key ? '<button class="btn dark" data-action="llm-clear">' + esc(t('ai_llm_clear')) + '</button>' : '') +
+      '<button class="btn dark" data-action="chat-cfg">' + esc(t('close')) + '</button></div>' +
+      '<p class="aiCfgHint">🔗 aistudio.google.com/apikey — free Gemini key</p>' +
+      '</div>';
+  }
+
   function chatFmt(s) {
-    return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    var e = esc(s);
+    e = e.replace(/^#{1,4}\s*(.+)$/gm, '<b>$1</b>');
+    e = e.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    e = e.replace(/^\s*[-*]\s+/gm, '• ');
+    e = e.replace(/\n/g, '<br>');
+    return e;
   }
 
   function chatRender() {
@@ -789,7 +969,7 @@
   function chatSend(qRaw) {
     var q = (qRaw || '').trim();
     if (!q) return;
-    state.chat.msgs.push({ r: 'u', h: chatFmt(q) });
+    state.chat.msgs.push({ r: 'u', h: chatFmt(q), t: q });
     if (state.chat.msgs.length > 40) state.chat.msgs.splice(0, state.chat.msgs.length - 40);
     persistSet('br_chat', state.chat.msgs);
     document.getElementById('chatSugg').style.display = 'none';
@@ -797,16 +977,32 @@
     state.chat.msgs.push({ r: 'a', h: '<span class="dots"><i></i><i></i><i></i></span>' });
     chatRender();
     Promise.all([api('/api/materials'), api('/api/builders'), api('/api/stores')]).then(function (res) {
-      var ans;
-      try { ans = aiAnswer(q, (res[0] && res[0].materials) || [], (res[1] && res[1].builders) || [], (res[2] && res[2].stores) || []); }
-      catch (e) { ans = { text: t('ai_fallback') }; }
-      state.chat.msgs.pop();
-      state.chat.msgs.push({ r: 'a', h: chatFmt(ans.text), a: ans.acts || null });
-      persistSet('br_chat', state.chat.msgs);
-      chatRender();
+      var mats = (res[0] && res[0].materials) || [];
+      var builders = (res[1] && res[1].builders) || [];
+      var stores = (res[2] && res[2].stores) || [];
+      function offline() {
+        try { return aiAnswer(q, mats, builders, stores); }
+        catch (e) { return { text: t('ai_fallback') }; }
+      }
+      function finish(ans, isLlm) {
+        state.chat.msgs.pop();
+        state.chat.msgs.push({ r: 'a', h: chatFmt(ans.text), t: ans.text, a: ans.acts || null });
+        persistSet('br_chat', state.chat.msgs);
+        chatRender();
+      }
+      if (state.llm && state.llm.key) {
+        llmChat(q, mats, builders).then(function (txt) {
+          finish({ text: txt });
+        }).catch(function () {
+          var a = offline();
+          finish({ text: '⚠️ ' + t('ai_llm_err') + '\n\n' + a.text, acts: a.acts });
+        });
+      } else {
+        finish(offline());
+      }
     }).catch(function () {
       state.chat.msgs.pop();
-      state.chat.msgs.push({ r: 'a', h: chatFmt(t('ai_fallback')) });
+      state.chat.msgs.push({ r: 'a', h: chatFmt(t('ai_fallback')), t: t('ai_fallback') });
       chatRender();
     });
   }
@@ -814,6 +1010,8 @@
   function chatOpen() {
     document.getElementById('chatOverlay').hidden = false;
     document.getElementById('fabBtn').hidden = true;
+    document.getElementById('aiCfg').hidden = true;
+    aiStatusRender();
     if (!state.chat.msgs.length) {
       state.chat.msgs.push({ r: 'a', h: chatFmt(t('ai_greeting')) });
       persistSet('br_chat', state.chat.msgs);
@@ -1285,10 +1483,10 @@
   var CALC_FLOORS_KG = { g: 1.0, g1: 1.06, g2: 1.12 };
   var CALC_AGGR_T_PER_CFT = 0.042;  // blue metal: ~4.2 t per unit (100 cft)
 
-  function calcEstimate(mats) {
+  function calcEstimate(mats, cfg) {
     var by = {};
     mats.forEach(function (m) { by[m.slug] = m; });
-    var c = state.calc;
+    var c = cfg || state.calc;
     var tierIdx = { e: 0, s: 1, p: 2 }[c.tier];
     var A = c.area;
 
@@ -1823,6 +2021,34 @@
         break;
       case 'chat-sugg':
         chatSend(el.dataset.q || '');
+        break;
+      case 'chat-cfg':
+        document.getElementById('aiCfg').hidden = !document.getElementById('aiCfg').hidden;
+        if (!document.getElementById('aiCfg').hidden) aiCfgRender();
+        break;
+      case 'llm-prov': {
+        var key = document.getElementById('llmKey') ? document.getElementById('llmKey').value : '';
+        state.llm.p = ['gemini', 'openrouter', 'groq', 'custom'].indexOf(el.dataset.val) >= 0 ? el.dataset.val : 'gemini';
+        state.llm.key = key;
+        aiCfgRender();
+        break;
+      }
+      case 'llm-save': {
+        var k = (document.getElementById('llmKey').value || '').trim();
+        var m = (document.getElementById('llmModel') ? document.getElementById('llmModel').value : '').trim();
+        var u = (document.getElementById('llmUrl') ? document.getElementById('llmUrl').value : '').trim();
+        state.llm.key = k; state.llm.model = m; state.llm.url = u;
+        persistSet('br_llm', state.llm);
+        aiStatusRender();
+        document.getElementById('aiCfg').hidden = true;
+        toast(k ? 'AI: ' + t('ai_mode_full') : 'AI: ' + t('ai_mode_off'));
+        break;
+      }
+      case 'llm-clear':
+        state.llm.key = '';
+        persistSet('br_llm', state.llm);
+        aiStatusRender();
+        aiCfgRender();
         break;
       case 'chat-act':
         chatClose();
