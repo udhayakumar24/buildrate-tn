@@ -801,6 +801,15 @@ body {
 .ppdel:active { background: #f9d8d8; }
 .amortwrap { overflow-x: auto; }
 
+/* ---- builder quote extras ---- */
+.extrow { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.extname { font-size: .84rem; font-weight: 700; line-height: 1.3; }
+.extname small { display: block; font-size: .68rem; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.extamt { font-size: .78rem; font-weight: 800; white-space: nowrap; color: var(--navy); font-variant-numeric: tabular-nums; text-align: right; }
+.extratotal { background: var(--accent-soft); color: #8a5a08; border-radius: 12px; padding: 10px 12px; font-weight: 700; font-size: .88rem; margin-top: 10px; }
+.extratotal small { font-weight: 600; }
+.extratotal.big { background: #e8f0fb; color: var(--navy); font-size: 1.02rem; margin-top: 8px; }
+
 </style>
 </head>
 <body>
@@ -893,9 +902,10 @@ body {
     focusSearch: false,
     route: { view: 'home', param: null },
     builderFilter: { q: '', city: 'all', type: 'all' },
-    calcMode: persistGet('br_cmode', 'materials') === 'loan' ? 'loan' : 'materials',
+    calcMode: ['materials', 'loan', 'builderrate'].indexOf(persistGet('br_cmode', 'materials')) >= 0 ? persistGet('br_cmode', 'materials') : 'materials',
     calc: null,
-    loan: null
+    loan: null,
+    quote: null
   };
   (function initLoan() {
     var l = persistGet('br_loan', null);
@@ -913,6 +923,15 @@ body {
       : (isFinite(+l.lumpAmt) && +l.lumpAmt > 0
           ? [{ m: Math.max(0, Math.round(+l.lumpYear || 0)) * 12 + 1, amt: Math.round(+l.lumpAmt) }]
           : [{ m: 13, amt: 100000 }]);
+  })();
+  (function initQuote() {
+    var q = persistGet('br_quote', null);
+    if (!q || typeof q !== 'object') q = {};
+    state.quote = {
+      rate: isFinite(+q.rate) && +q.rate >= 500 && +q.rate <= 6000 ? +q.rate : 2000,
+      floors: [1, 2, 3, 4].indexOf(+q.floors) >= 0 ? +q.floors : 2,
+      area: isFinite(+q.area) && +q.area >= 300 && +q.area <= 10000 ? Math.round(+q.area) : 1000
+    };
   })();
   (function initCalc() {
     var c = persistGet('br_calc', null);
@@ -1069,7 +1088,35 @@ body {
       yr_schedule: 'Year-wise payment schedule (with prepayment)',
       col_year: 'Year',
       col_balance: 'Balance',
-      prepay_note: 'Most banks charge no prepayment fee on floating-rate home loans; fixed-rate loans may charge 2–4%. The prepayment is assumed to go fully towards principal.'
+      prepay_note: 'Most banks charge no prepayment fee on floating-rate home loans; fixed-rate loans may charge 2–4%. The prepayment is assumed to go fully towards principal.',
+      mode_builderrate: 'Builder rate',
+      quote_rate: 'Builder rate',
+      quote_floors: 'Floors',
+      floor_g: 'Ground',
+      quote_area: 'Built-up area per floor',
+      quote_totalarea: 'Total built-up area',
+      quote_totalcost: 'Construction cost',
+      quote_extras_title: 'Extra costs to keep aside (usually NOT in the package)',
+      q_compound: 'Compound wall + gate',
+      q_compound_n: '₹280–₹400 per running ft, incl. pillars & gate',
+      q_eb: 'EB connection & wiring',
+      q_eb_n: 'TNEB new service connection, meter, DB panel',
+      q_borewell: 'Borewell + pump',
+      q_borewell_n: '₹800–₹1,000 per ft in Chennai belt + ~₹25k pump',
+      q_sump: 'Water sump',
+      q_sump_n: '5,000–10,000 litre RCC sump',
+      q_septic: 'Septic tank',
+      q_septic_n: 'Septic tank + soak pit',
+      q_approval: 'Plan approval & permits',
+      q_approval_n: 'CMDA/DTCP approval, licensed engineer, documentation',
+      q_siteworks: 'Driveway & site works',
+      q_siteworks_n: 'Paving, levelling, basic landscaping',
+      q_contingency: 'Contingency buffer',
+      q_contingency_n: '5% of construction cost — price changes & surprises',
+      quote_extras_subtotal: 'Extras subtotal',
+      of_construction: 'of construction cost',
+      quote_total_project: 'Total project cost',
+      quote_note: 'Indicative Tamil Nadu ranges (Sep 2026). Interiors/woodwork, land cost & registration are NOT included. Some builders include sump, septic or compound wall — check exactly what your package covers.'
     },
     ta: {
       tagline: 'பொருள் விலைகள் & கடைகள் · தமிழ்நாடு',
@@ -1212,7 +1259,35 @@ body {
       yr_schedule: 'ஆண்டுவாரி பணமுடக்க அட்டவணை (முன்செலுத்தலுடன்)',
       col_year: 'ஆண்டு',
       col_balance: 'மீதத் தொகை',
-      prepay_note: 'மித வட்டி (floating) வீட்டுக் கடாக்களில் பெரும்பாலான வங்கிகள் முன்செலுத்தல் கட்டணம் வசூலிப்பதில்லை; நிலை வட்டி (fixed) கடாக்களில் 2–4% வரை இருக்கலாம். முன்செலுத்தப்படும் தொகை முழுவதும் அசலில் சேர்க்கப்படும் என்று கருதப்படுகிறது.'
+      prepay_note: 'மித வட்டி (floating) வீட்டுக் கடாக்களில் பெரும்பாலான வங்கிகள் முன்செலுத்தல் கட்டணம் வசூலிப்பதில்லை; நிலை வட்டி (fixed) கடாக்களில் 2–4% வரை இருக்கலாம். முன்செலுத்தப்படும் தொகை முழுவதும் அசலில் சேர்க்கப்படும் என்று கருதப்படுகிறது.',
+      mode_builderrate: 'பில்டர் ரேட்',
+      quote_rate: 'பில்டர் விகிதம்',
+      quote_floors: 'தளங்கள்',
+      floor_g: 'தரை தளம்',
+      quote_area: 'ஒரு தளத்தின் கட்டும் பரப்பு',
+      quote_totalarea: 'மொத்த கட்டும் பரப்பு',
+      quote_totalcost: 'கட்டுமான செலவு',
+      quote_extras_title: 'தனியாக வைத்திருக்க வேண்டிய கூடுதல் செலவுகள் (பேக்கேஜில் வராதவை)',
+      q_compound: 'சுற்றுசுவர் + வாசல் கதவு',
+      q_compound_n: 'ஒரு அடிக்கு ₹280–₹400, தூண்கள் & கதவு உட்பட',
+      q_eb: 'மின் இணைப்பு & கம்பியிடுதல்',
+      q_eb_n: 'TNEB புதிய இணைப்பு, மீட்டர், DB பேனல்',
+      q_borewell: 'கிணறு + மோட்டார்',
+      q_borewell_n: 'சென்னையில் ஒரு அடிக்கு ₹800–₹1,000 + மோட்டார் ~₹25k',
+      q_sump: 'தண்ணீர் சம்ப்',
+      q_sump_n: '5,000–10,000 லிட்டர் RCC சம்ப்',
+      q_septic: 'செப்டிக் டேங்க்',
+      q_septic_n: 'செப்டிக் டேங்க் + சோக் பிட்',
+      q_approval: 'வரைபட ஒப்புதல் & அனுமதிகள்',
+      q_approval_n: 'CMDA/DTCP ஒப்புதல், உரிமம் பெற்ற பொறியாளர், ஆவணங்கள்',
+      q_siteworks: 'வாகன பாதை & தள வேலைகள்',
+      q_siteworks_n: 'ஓடு போடுதல், சமப்படுத்துதல், எளிய தோட்ட வேலை',
+      q_contingency: 'கூடுதல் பாதுகாப்பு தொகை',
+      q_contingency_n: 'கட்டுமான செலவில் 5% — விலை ஏற்ற இறக்கம் & எதிர்பாராதவை',
+      quote_extras_subtotal: 'கூடுதல் செலவு மொத்தம்',
+      of_construction: 'கட்டுமான செலவில்',
+      quote_total_project: 'மொத்த திட்டச் செலவு',
+      quote_note: 'தமிழ்நாட்டு சராசரி வகைப்பாடுகள் (செப். 2026). இன்டீரியர்/மர வேலை, நில விலை & பதிவுக் கட்டணம் சேர்க்கப்படவில்லை. சில பில்டர்கள் சம்ப், செப்டிக், சுற்றுசுவரையும் பேக்கேஜில் சேர்ப்பார்கள் — உங்கள் ஒப்பந்தத்தில் சரிபார்க்கவும்.'
     }
   };
   function t(key, n, m) {
@@ -1853,11 +1928,13 @@ body {
   function calcModeChips() {
     return '<div class="chiprow">' +
       '<button class="chip' + (state.calcMode === 'materials' ? ' active' : '') + '" data-action="calcmode" data-val="materials">' + esc(t('mode_materials')) + '</button>' +
+      '<button class="chip' + (state.calcMode === 'builderrate' ? ' active' : '') + '" data-action="calcmode" data-val="builderrate">' + esc(t('mode_builderrate')) + '</button>' +
       '<button class="chip' + (state.calcMode === 'loan' ? ' active' : '') + '" data-action="calcmode" data-val="loan">' + esc(t('mode_loan')) + '</button>' +
       '</div>';
   }
 
   function viewCalc() {
+    if (state.calcMode === 'builderrate') return viewQuote();
     if (state.calcMode === 'loan') return viewCalcLoan();
     return viewCalcMaterials();
   }
@@ -1900,6 +1977,93 @@ body {
       update();
       updaters.calc = update;
     });
+  }
+
+  /* ---------------- builder-quote home cost ---------------- */
+  var QUOTE_EXTRAS = [
+    { k: 'q_compound', min: 120000, max: 220000 },
+    { k: 'q_eb', min: 40000, max: 80000 },
+    { k: 'q_borewell', min: 100000, max: 180000 },
+    { k: 'q_sump', min: 50000, max: 80000 },
+    { k: 'q_septic', min: 40000, max: 70000 },
+    { k: 'q_approval', min: 80000, max: 150000 },
+    { k: 'q_siteworks', min: 40000, max: 100000 }
+  ];
+
+  function quoteFloorLabel(n) {
+    return n === 1 ? t('floor_g') : 'G+' + (n - 1);
+  }
+
+  function quoteCalc() {
+    var Q = state.quote;
+    var totalArea = Q.area * Q.floors;
+    var cost = Q.rate * totalArea;
+    var cont = Math.round(cost * 0.05);
+    var exMin = cont, exMax = cont;
+    QUOTE_EXTRAS.forEach(function (e) { exMin += e.min; exMax += e.max; });
+    return { totalArea: totalArea, cost: cost, cont: cont, exMin: exMin, exMax: exMax };
+  }
+
+  function quoteResultsHtml(r) {
+    var rows = QUOTE_EXTRAS.map(function (e) {
+      return '<div class="extrow"><div class="extname">' + esc(t(e.k)) +
+        '<small>' + esc(t(e.k + '_n')) + '</small></div>' +
+        '<div class="extamt">' + fmt(e.min) + ' – ' + fmt(e.max) + '</div></div>';
+    }).join('');
+    var pctMin = Math.round(r.exMin / r.cost * 100), pctMax = Math.round(r.exMax / r.cost * 100);
+    return '<div class="hero"><span class="catpill">' + esc(t('quote_totalcost')) + '</span>' +
+      '<div class="herosplit"><strong>' + fmt(r.cost) + '</strong><span>' + esc(t('per_sqft_rate')) + ' ' + fmt(state.quote.rate) + '</span></div>' +
+      '<div class="herofoot"><span class="badge onDark flat">' + qfmt(r.totalArea, 0) + ' ' + esc(t('sqft_unit')) + '</span>' +
+      '<span class="badge onDark flat">' + esc(quoteFloorLabel(state.quote.floors)) + '</span></div></div>' +
+
+      '<div class="card panel"><h3>' + ICONS.box + ' ' + esc(t('breakdown')) + '</h3>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('quote_rate')) + ':</b> ' + fmt(state.quote.rate) + '</span></div>' +
+      '<div class="inforow">' + ICONS.pin + '<span><b>' + esc(t('quote_area')) + ':</b> ' + qfmt(state.quote.area, 0) + ' ' + esc(t('sqft_unit')) + '</span></div>' +
+      '<div class="inforow">' + ICONS.pin + '<span><b>' + esc(t('quote_totalarea')) + ':</b> ' + qfmt(r.totalArea, 0) + ' ' + esc(t('sqft_unit')) + ' <small>(' + state.quote.floors + ' × ' + qfmt(state.quote.area, 0) + ')</small></span></div>' +
+      '<div class="inforow">' + ICONS.ruppee + '<span><b>' + esc(t('quote_totalcost')) + ':</b> ' + fmt(r.cost) + '</span></div></div>' +
+
+      '<div class="card panel"><h3>' + ICONS.chart + ' ' + esc(t('quote_extras_title')) + '</h3>' + rows +
+      '<div class="extrow"><div class="extname"><b>' + esc(t('q_contingency')) + '</b><small>' + esc(t('q_contingency_n')) + '</small></div>' +
+      '<div class="extamt">' + fmt(r.cont) + '</div></div>' +
+      '<div class="extratotal">' + esc(t('quote_extras_subtotal')) + ': ' + fmt(r.exMin) + ' – ' + fmt(r.exMax) +
+      ' <small>(≈ ' + pctMin + '% – ' + pctMax + '% ' + esc(t('of_construction')) + ')</small></div>' +
+      '<div class="extratotal big">' + esc(t('quote_total_project')) + ': ' + fmt(r.cost + r.exMin) + ' – ' + fmt(r.cost + r.exMax) + '</div>' +
+      '<div class="notecard">💡 ' + esc(t('quote_note')) + '</div></div>';
+  }
+
+  function viewQuote() {
+    function update() {
+      document.getElementById('quoteResults').innerHTML = quoteResultsHtml(quoteCalc());
+    }
+    var Q = state.quote;
+    main.innerHTML =
+      '<div class="greeting"><h2>' + esc(t('mode_builderrate')) + '</h2></div>' +
+      calcModeChips() +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('quote_rate')) + '</label>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="quotestep" data-key="rate" data-delta="-50" aria-label="minus">−</button>' +
+      '<input id="quoteRate" class="areainput" type="number" inputmode="numeric" min="500" max="6000" step="50" value="' + Q.rate + '" aria-label="builder rate per sqft">' +
+      '<button class="stepbtn" data-action="quotestep" data-key="rate" data-delta="50" aria-label="plus">+</button>' +
+      '<span class="unitlbl">₹ / sq.ft</span></div></div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('quote_floors')) + '</label>' +
+      '<div class="chiprow">' + [1, 2, 3, 4].map(function (n) {
+        return '<button class="chip' + (Q.floors === n ? ' active' : '') + '" data-action="quoteset" data-key="floors" data-val="' + n + '">' + esc(quoteFloorLabel(n)) + '</button>';
+      }).join('') + '</div></div>' +
+
+      '<div class="card calcpanel"><label class="plabel">' + esc(t('quote_area')) + '</label>' +
+      '<div class="stepper">' +
+      '<button class="stepbtn" data-action="quotestep" data-key="area" data-delta="-50" aria-label="minus">−</button>' +
+      '<input id="quoteArea" class="areainput" type="number" inputmode="numeric" min="300" max="10000" step="50" value="' + Q.area + '" aria-label="built-up area per floor in sqft">' +
+      '<button class="stepbtn" data-action="quotestep" data-key="area" data-delta="50" aria-label="plus">+</button>' +
+      '<span class="unitlbl">' + esc(t('sqft_unit')) + '</span></div></div>' +
+
+      '<div id="quoteResults"></div>';
+
+    update();
+    updaters.quote = update;
+    return Promise.resolve();
   }
 
   /* ---------------- home loan calculator ---------------- */
@@ -2082,7 +2246,7 @@ body {
     if (pendingRoute) { state.route = pendingRoute; pendingRoute = null; }
     else { state.route = parseHash(); }
     setActiveTab(state.route.view);
-    updaters.mat = null; updaters.store = null; updaters.calc = null; updaters.loan = null; updaters.builder = null;
+    updaters.mat = null; updaters.store = null; updaters.calc = null; updaters.loan = null; updaters.quote = null; updaters.builder = null;
     main.scrollTop = 0;
     var p;
     switch (state.route.view) {
@@ -2148,10 +2312,27 @@ body {
         render();
         break;
       case 'calcmode':
-        state.calcMode = el.dataset.val === 'loan' ? 'loan' : 'materials';
+        state.calcMode = ['materials', 'loan', 'builderrate'].indexOf(el.dataset.val) >= 0 ? el.dataset.val : 'materials';
         persistSet('br_cmode', state.calcMode);
         render();
         break;
+      case 'quoteset':
+        if (['rate', 'floors', 'area'].indexOf(el.dataset.key) >= 0 && isFinite(+el.dataset.val)) {
+          state.quote[el.dataset.key] = +el.dataset.val;
+          persistSet('br_quote', state.quote);
+        }
+        render();
+        break;
+      case 'quotestep': {
+        var qk = el.dataset.key, qd = +el.dataset.delta;
+        var qlim = { rate: [500, 6000], area: [300, 10000] }[qk];
+        if (qlim) {
+          state.quote[qk] = Math.round(Math.max(qlim[0], Math.min(qlim[1], (+state.quote[qk] || 0) + qd)));
+          persistSet('br_quote', state.quote);
+        }
+        render();
+        break;
+      }
       case 'loanset':
         state.loan[el.dataset.key] = +el.dataset.val;
         persistSet('br_loan', state.loan);
@@ -2272,6 +2453,22 @@ body {
           persistSet('br_loan', state.loan);
           if (updaters.loan) updaters.loan();
         }
+      }
+    }
+    if (e.target.id === 'quoteRate') {
+      var qrv = parseFloat(e.target.value);
+      if (!isNaN(qrv) && qrv >= 500 && qrv <= 6000) {
+        state.quote.rate = qrv;
+        persistSet('br_quote', state.quote);
+        if (updaters.quote) updaters.quote();
+      }
+    }
+    if (e.target.id === 'quoteArea') {
+      var qav = parseInt(e.target.value, 10);
+      if (!isNaN(qav) && qav >= 300 && qav <= 10000) {
+        state.quote.area = qav;
+        persistSet('br_quote', state.quote);
+        if (updaters.quote) updaters.quote();
       }
     }
     if (e.target.id === 'calcArea') {
