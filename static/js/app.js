@@ -154,6 +154,10 @@
       yrs_short: 'yrs',
       projects_short: 'projects',
       turnkey: 'Turnkey',
+      type_contractor: 'Civil contractor',
+      on_enquiry: 'On enquiry',
+      website_btn: 'Website',
+      verified_listing: 'Chennai listings compiled from public sources & company websites (Sep 2026) — verify current rates before signing',
       semi: 'Semi-turnkey',
       labour: 'Labour only',
       all_types: 'All types',
@@ -274,6 +278,10 @@
       yrs_short: 'ஆண்டு',
       projects_short: 'திட்டங்கள்',
       turnkey: 'முழு பேக்கேஜ்',
+      type_contractor: 'சிவில் ஒப்பந்ததாரர்',
+      on_enquiry: 'விசாரணைக்கு',
+      website_btn: 'இணையதளம்',
+      verified_listing: 'சென்னை பட்டியல்கள் பொது மூலங்கள் & நிறுவன இணையதளங்களிலிருந்து (செப். 2026) — ஒப்பந்தத்திற்கு முன் உறுதிப்படுத்தவும்',
       semi: 'அரை பேக்கேஜ்',
       labour: 'வேலை மட்டும்',
       all_types: 'அனைத்து வகை',
@@ -743,19 +751,23 @@
   }
 
   /* ---------------- builders ---------------- */
-  var TYPE_KEYS = { turnkey: 'turnkey', semi: 'semi', labour: 'labour' };
+  var TYPE_KEYS = { turnkey: 'turnkey', semi: 'semi', contractor: 'type_contractor', labour: 'labour' };
 
   function builderCard(b) {
+    var tags = '';
+    if (b.rating != null) tags += '<span class="tag">★ ' + b.rating.toFixed(1) + '</span>';
+    if (b.projects != null) tags += '<span class="tag">' + b.projects + ' ' + esc(t('projects_short')) + '</span>';
+    if (b.years != null) tags += '<span class="tag">' + b.years + ' ' + esc(t('yrs_short')) + '</span>';
+    if (b.min_area != null) tags += '<span class="tag">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>';
+    var rate = b.rate != null
+      ? fmt(b.rate) + '<small>' + esc(t('per_sqft_short')) + '</small>'
+      : '<small style="color:var(--muted)">' + esc(t('on_enquiry')) + '</small>';
     return '<button class="buildrow" data-action="open-builder" data-slug="' + b.slug + '">' +
       '<span class="builderavatar">' + esc(b.name.trim()[0]) + '</span>' +
       '<span class="buildermid"><span class="buildername">' + esc(b.name) + '</span>' +
       '<span class="builderloc">' + esc(b.city) + ' · ' + esc(t(TYPE_KEYS[b.type] || b.type)) + '</span>' +
-      '<span class="buildertags"><span class="tag">★ ' + b.rating.toFixed(1) + '</span>' +
-      '<span class="tag">' + b.projects + ' ' + esc(t('projects_short')) + '</span>' +
-      '<span class="tag">' + b.years + ' ' + esc(t('yrs_short')) + '</span>' +
-      (b.min_area ? '<span class="tag">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>' : '') +
-      '</span></span>' +
-      '<span class="builderright"><span class="builderrate">' + fmt(b.rate) + '<small>' + esc(t('per_sqft_short')) + '</small></span></span></button>';
+      '<span class="buildertags">' + tags + '</span></span>' +
+      '<span class="builderright"><span class="builderrate">' + rate + '</span></span></button>';
   }
 
   function viewBuilders() {
@@ -779,7 +791,7 @@
         '<div class="chiprow">' + cityChips + '</div>' +
         '<p class="countline" id="builderCount"></p>' +
         '<div id="builderList"></div>' +
-        '<p class="footnote">' + esc(t('sample_listing')) + '.</p>';
+        '<p class="footnote">' + esc(t('verified_listing')) + '.</p>';
 
       function update() {
         var q = f.q.trim().toLowerCase();
@@ -806,20 +818,32 @@
       var faved = isFav('builder', b.slug);
       var incl = (b.inclusions || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
 
+      var ratingLine = b.rating != null ? '★ ' + b.rating.toFixed(1) + (b.reviews ? ' · ' + b.reviews + ' ' + esc(t('reviews')) : '') : esc(b.areas.split('—')[0]);
+      var heroRate = b.rate != null ? fmt(b.rate) : esc(t('on_enquiry'));
+      var badges = '';
+      if (b.projects != null) badges += '<span class="badge onDark flat">' + b.projects + ' ' + esc(t('projects_short')) + '</span>';
+      if (b.years != null) badges += '<span class="badge onDark flat">' + b.years + ' ' + esc(t('yrs_short')) + ' ' + esc(t('experience')) + '</span>';
+      if (b.min_area != null) badges += '<span class="badge onDark flat">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>';
+      if (b.website) badges += '<span class="badge onDark flat">' + esc(b.website) + '</span>';
+      var callBtn = b.phone
+        ? '<a class="btn primary" href="tel:' + esc(b.phone.replace(/\s/g, '')) + '">' + ICONS.phone + ' ' + esc(t('call')) + '</a>'
+        : '';
+      var webBtn = b.website
+        ? '<a class="btn dark" href="https://' + esc(b.website) + '" target="_blank" rel="noopener">' + ICONS.pin + ' ' + esc(t('website_btn')) + '</a>'
+        : '';
+      var footnote = b.sample ? t('sample_listing') : t('verified_listing');
+
       main.innerHTML =
         '<div class="backbar"><button class="backbtn" data-action="back" data-to="#/builders">' + ICONS.back + ' ' + esc(t('back')) + '</button>' +
         '<button class="favbtn' + (faved ? ' faved' : '') + '" data-action="toggle-fav" data-type="builder" data-slug="' + b.slug + '" aria-label="favourite">' + ICONS.heart + '</button></div>' +
 
         '<div class="hero"><span class="catpill">' + esc(t(TYPE_KEYS[b.type] || b.type)) + ' · ' + esc(b.city) + '</span>' +
         '<h2>' + esc(b.name) + '</h2>' +
-        '<div class="heroTa">★ ' + b.rating.toFixed(1) + ' · ' + b.reviews + ' ' + esc(t('reviews')) + '</div>' +
-        '<div class="herosplit"><strong>' + fmt(b.rate) + '</strong><span>' + esc(t('per_sqft_rate')) + '</span></div>' +
-        '<div class="herofoot"><span class="badge onDark flat">' + b.projects + ' ' + esc(t('projects_short')) + '</span>' +
-        '<span class="badge onDark flat">' + b.years + ' ' + esc(t('yrs_short')) + ' ' + esc(t('experience')) + '</span>' +
-        (b.min_area ? '<span class="badge onDark flat">' + esc(t('min_area')) + ' ' + qfmt(b.min_area, 0) + ' sq.ft</span>' : '') +
-        '</div></div>' +
+        '<div class="heroTa">' + ratingLine + '</div>' +
+        '<div class="herosplit"><strong>' + heroRate + '</strong><span>' + esc(t('per_sqft_rate')) + '</span></div>' +
+        '<div class="herofoot">' + badges + '</div></div>' +
 
-        '<div class="actionbtns"><a class="btn primary" href="tel:' + esc(b.phone.replace(/\s/g, '')) + '">' + ICONS.phone + ' ' + esc(t('call')) + '</a></div>' +
+        '<div class="actionbtns">' + callBtn + webBtn + '</div>' +
 
         '<div class="card panel"><h3>' + ICONS.info + ' ' + esc(t('inclusions')) + '</h3>' +
         '<ul class="inclist">' + incl + '</ul>' +
@@ -827,9 +851,10 @@
 
         '<div class="card panel"><h3>' + ICONS.pin + ' ' + esc(t('areas_served')) + '</h3>' +
         '<div class="inforow">' + ICONS.pin + '<span>' + esc(b.areas) + '</span></div>' +
-        '<div class="inforow">' + ICONS.phone + '<span>' + esc(b.phone) + '</span></div></div>' +
+        (b.phone ? '<div class="inforow">' + ICONS.phone + '<span>' + esc(b.phone) + '</span></div>' : '') +
+        (b.website ? '<div class="inforow">' + ICONS.info + '<span>' + esc(b.website) + '</span></div>' : '') + '</div>' +
 
-        '<p class="footnote">' + esc(t('sample_listing')) + '.</p>';
+        '<p class="footnote">' + esc(footnote) + '.</p>';
     });
   }
 

@@ -139,6 +139,7 @@ def store_detail(s, materials_by_slug):
 BUILDER_TYPES = [
     {"id": "turnkey", "name": "Turnkey", "name_ta": "முழு பேக்கேஜ்"},
     {"id": "semi", "name": "Semi-turnkey", "name_ta": "அரை பேக்கேஜ்"},
+    {"id": "contractor", "name": "Civil contractor", "name_ta": "சிவில் ஒப்பந்ததாரர்"},
     {"id": "labour", "name": "Labour only", "name_ta": "வேலை மட்டும்"},
 ]
 
@@ -162,6 +163,8 @@ def builder_summary(b):
         "years": b.get("years"),
         "rating": b.get("rating"),
         "reviews": b.get("reviews"),
+        "website": b.get("website"),
+        "sample": b.get("note", "").startswith("SAMPLE"),
     }
 
 

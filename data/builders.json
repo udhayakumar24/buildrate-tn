@@ -1,72 +1,547 @@
 {
-  "note": "Sample builder listings for demonstration. Package rates are indicative — always verify with the builder.",
+  "note": "Chennai listings compiled from public sources (company websites, Justdial, Sulekha — Sep 2026). Other-city listings are samples. Always verify current rates before signing.",
   "builders": [
     {
-      "slug": "sri-venkateswara-constructions",
-      "name": "Sri Venkateswara Constructions",
+      "slug": "gpm-properties",
+      "name": "GPM Properties",
       "city": "Chennai",
       "type": "turnkey",
-      "rate": 2250,
-      "min_area": 800,
-      "projects": 62,
+      "rate": 1550,
+      "years": 19,
+      "phone": "+91 91765 22727",
+      "website": "gpmproperties.in",
+      "areas": "Chennai city & suburbs — budget home specialist",
+      "inclusions": [
+        "Budget house plans & construction",
+        "Registered civil & structural engineers",
+        "Interior finishing packages",
+        "Free site supervision at initial stage"
+      ],
+      "note": "Starting rate ₹1,550/sq.ft for economy packages (as published Aug 2025)."
+    },
+    {
+      "slug": "chennee-builders",
+      "name": "CHENNEE Builders",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1750,
+      "years": 10,
+      "phone": "+91 96004 42776",
+      "website": "chennee.in",
+      "areas": "All Chennai — individual houses, villas, duplex, budget apartments",
+      "inclusions": [
+        "Individual house & villa construction",
+        "Customized budget packages",
+        "Written on-time delivery commitment",
+        "Post-completion warranty"
+      ],
+      "note": "Known for low-cost construction techniques suited to Chennai climate."
+    },
+    {
+      "slug": "the-chennai-engineer",
+      "name": "The Chennai Engineer",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1799,
+      "phone": null,
+      "website": "thechennaiengineer.com",
+      "areas": "Chennai — residential construction",
+      "inclusions": [
+        "Team of registered engineers",
+        "Fixed material-combination packages",
+        "Transparent BOQ-based pricing"
+      ],
+      "note": "Startup by experienced registered engineers — ₹1,799/sq.ft promotional rate."
+    },
+    {
+      "slug": "prajha-group",
+      "name": "Prajha Group",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1800,
+      "phone": "+91 95001 20231",
+      "website": "prajhagroup.com",
+      "areas": "Old Pallavaram base — Chennai, Chengalpattu, Kanchipuram, Thiruvallur",
+      "inclusions": [
+        "Basic ₹1,800–2,200 / Premium ₹2,300–2,800 / Luxury ₹3,000–3,500 packages",
+        "Chengalpattu & DTCP-belt pricing slightly lower",
+        "Free estimation guide & consultation"
+      ],
+      "note": "Publishes location-wise 2026 rate cards for Chennai & Chengalpattu."
+    },
+    {
+      "slug": "siddharth-construction",
+      "name": "Siddharth Construction",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1899,
+      "years": 13,
+      "phone": "+91 98406 56935",
+      "website": "siddharthconstruction.com",
+      "areas": "Anna Nagar, Porur, Ambattur, Velachery, Adyar, Tambaram, OMR, Avadi, Perambur, Madipakkam + Chengalpattu & Tiruvallur",
+      "inclusions": [
+        "Individual-house specialists — residential only",
+        "Fixed-price packages, no hidden costs",
+        "Written timelines & CMDA plan approval support",
+        "In-house interior design"
+      ],
+      "note": "Since 2011 — builds only single-family homes across all Chennai zones."
+    },
+    {
+      "slug": "hireandbuild",
+      "name": "HireAndBuild",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1999,
+      "projects": 400,
       "years": 15,
-      "rating": 4.4,
-      "reviews": 184,
-      "phone": "+91 98400 61725",
-      "areas": "Chennai South — Medavakkam, Perumbakkam, Tambaram, OMR",
+      "phone": "+91 72004 72008",
+      "website": "hireandbuild.com",
+      "areas": "Mogappair West HQ — all Chennai incl. OMR, ECR, Anna Nagar, Porur, Velachery, Tambaram",
       "inclusions": [
-        "RCC structure with branded cement & TMT steel",
-        "Brick work + internal/external plastering",
-        "Standard vitrified tile flooring (₹75/sq.ft grade)",
-        "Basic electrical & plumbing (ISI fittings)",
-        "Putty + 2 coats interior emulsion",
-        "Kitchen granite platform with stainless sink"
+        "4 packages: Basic ₹1,999 / Standard ₹2,299 / Premium ₹2,649 / Luxury ₹2,999",
+        "Milestone-linked payments & full-time site engineer",
+        "Real-time project tracking dashboard, 350+ QC checks",
+        "CMDA/DTCP approvals handled; 15-year structural warranty"
       ],
-      "note": "Package excludes borewell, compound wall, approvals & interior woodwork."
+      "note": "One of Chennai's most transparent builders — 400+ homes delivered."
     },
     {
-      "slug": "aditya-build-homes",
-      "name": "Aditya Build Homes",
+      "slug": "chennai-construction-tambaram",
+      "name": "Chennai Construction",
       "city": "Chennai",
       "type": "turnkey",
-      "rate": 2800,
-      "min_area": 1000,
-      "projects": 38,
-      "years": 11,
-      "rating": 4.6,
-      "reviews": 129,
-      "phone": "+91 98410 73456",
-      "areas": "Chennai — Anna Nagar, Kilpauk, Mogappair, Porur",
+      "rate": 1999,
+      "projects": 500,
+      "years": 15,
+      "phone": "+91 93442 90116",
+      "website": "chennaiconstruction.in",
+      "areas": "West Tambaram (Mudichur Road) — South Chennai & Chengalpattu belt",
       "inclusions": [
-        "RCC structure designed by licensed structural engineer",
-        "Premium finishes (vitrified tiles ₹110+/sq.ft grade)",
-        "Modular kitchen provision + full wardrobes in 2 bedrooms",
-        "Concealed CPVC plumbing & FR copper wiring",
-        "Exterior weather-proof painting",
-        "6-month post-handover defect support"
+        "Essential ₹1,999 / Premium ₹2,149 / Elite ₹2,299 per sq.ft packages",
+        "Architecture + construction + interiors",
+        "Transparent per-sqft pricing"
       ],
-      "note": "Premium package; fly-ash/AAC block walls optional at +₹45/sq.ft."
+      "note": "Based in West Tambaram — popular for builds in the Guduvanchery–Tambaram belt."
     },
     {
-      "slug": "metro-mart-builders",
-      "name": "Metro Mart Builders",
+      "slug": "ols-construction",
+      "name": "OLS Construction",
       "city": "Chennai",
-      "type": "semi",
-      "rate": 2100,
-      "min_area": 600,
-      "projects": 95,
-      "years": 9,
-      "rating": 4.1,
-      "reviews": 210,
-      "phone": "+91 98847 35018",
-      "areas": "All Chennai + Chengalpattu districts",
+      "type": "turnkey",
+      "rate": 2000,
+      "years": 15,
+      "phone": "+91 96003 99336",
+      "website": "olsconstruction.com",
+      "areas": "Nungambakkam HQ — South Chennai, also Coimbatore & Bengaluru",
       "inclusions": [
-        "RCC structure (foundation to slab)",
-        "Brick work and complete plastering",
-        "Waterproofing for terrace & bathrooms",
-        "Owner purchases finishes & fittings directly"
+        "Individual homes & villas — budget from ~₹1,400/sq.ft",
+        "Commercial pedigree (Bosch fit-outs etc.) applied to homes",
+        "Transparent pricing, solar panel installation"
       ],
-      "note": "Semi-turnkey: structure & civil work only — ideal if you want to control finish material costs."
+      "note": "Established 2009; also rated among Coimbatore's top individual-home builders."
+    },
+    {
+      "slug": "bluemoon-construction",
+      "name": "Bluemoon Construction",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2100,
+      "years": 10,
+      "phone": "+91 89400 31003",
+      "website": "bluemoonconstruction.in",
+      "areas": "Villivakkam (New Avadi Road) — North & Central Chennai",
+      "inclusions": [
+        "Turnkey packages from ₹2,100/sq.ft (Basic → ₹3,500 Luxury)",
+        "Itemized quotations — no hidden charges",
+        "In-house architects, structural engineers & project managers"
+      ],
+      "note": "Publishes detailed 2026 Chennai cost guides."
+    },
+    {
+      "slug": "brick-and-bolt-chennai",
+      "name": "Brick & Bolt",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2150,
+      "phone": "+91 75052 05205",
+      "website": "bricknbolt.com",
+      "areas": "Chennai (Anna Nagar, Adyar & city-wide) — pan-India tech-enabled builder",
+      "inclusions": [
+        "ESCROW-protected payments — money released per stage",
+        "470+ quality checks (QASCON framework)",
+        "Soil test at every site before structural design",
+        "Digital BoQ & order tracking"
+      ],
+      "note": "From ₹2,150/sq.ft in Chennai; 10,000+ homes booked across India."
+    },
+    {
+      "slug": "jrm-construction",
+      "name": "JRM Construction",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2200,
+      "projects": 200,
+      "years": 14,
+      "rating": 5.0,
+      "reviews": 200,
+      "phone": "+91 77086 68707",
+      "website": "jrmconstruction.in",
+      "areas": "Sholinganallur (Adityaram Township) — OMR, ECR & South Chennai",
+      "inclusions": [
+        "ISO 9001:2015 certified processes",
+        "Luxury villas & turnkey projects — ECR specialists",
+        "Interior design & renovation in-house",
+        "Woman-led (founder Rebecca Malsawmi J)"
+      ],
+      "note": "5.0★ Google rating, 200+ families served."
+    },
+    {
+      "slug": "buildahome-chennai",
+      "name": "buildAhome",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2299,
+      "phone": null,
+      "website": "buildahome.in",
+      "areas": "Chennai — villas & individual homes",
+      "inclusions": [
+        "Packages ₹2,299–₹3,399/sq.ft incl. Freedom+ & The One+ tiers",
+        "Eco-friendly construction packages (₹2,300–2,499)",
+        "Architectural + structural design, MEP & soil testing included",
+        "Plan approval assistance"
+      ],
+      "note": "Premium-segment turnkey builder with eco-friendly options."
+    },
+    {
+      "slug": "urban-space-builders",
+      "name": "Urban Space Builders",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 2499,
+      "phone": "+91 91500 30450",
+      "website": "urbanspacebuilders.com",
+      "areas": "Perumbakkam HQ — OMR, Sholinganallur, Medavakkam & South Chennai corridors",
+      "inclusions": [
+        "Builder's Choice package ₹2,499/sq.ft (regular ₹2,699)",
+        "Live project tracking via mobile app",
+        "Daily site updates without calling"
+      ],
+      "note": "Suburban-Chennai corridor specialists."
+    },
+    {
+      "slug": "chennai-builder-com",
+      "name": "Chennai Builder",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1950,
+      "projects": 500,
+      "years": 20,
+      "rating": 4.9,
+      "reviews": 312,
+      "phone": "+91 90435 55715",
+      "website": "chennaibuilder.com",
+      "areas": "280+ Chennai pincodes + all 38 TN districts — incl. ECR to Pondicherry",
+      "inclusions": [
+        "Basic ₹1,950 / Standard ₹2,500 / Premium ₹3,000 / Bungalow ₹5,500 packages",
+        "Renovation from ₹400/sq.ft; commercial from ₹2,500/sq.ft",
+        "CMDA licensed, TNRERA approved, ISO 9001:2015",
+        "Free site visit within 24 hours"
+      ],
+      "note": "Founded 2005 — one of the most-reviewed construction firms in Tamil Nadu (4.9★, 312 reviews)."
+    },
+    {
+      "slug": "deejos-architects",
+      "name": "DEEJOS Architects & Construction",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": 1999,
+      "years": 16,
+      "phone": "+91 81100 00384",
+      "website": "deejos.com",
+      "areas": "Chromepet (CLC Works Road) HQ — Chennai-wide, strong in OMR/ECR/Tambaram",
+      "inclusions": [
+        "4 tiered packages ₹1,999–₹2,549+/sq.ft with BOQ breakdown",
+        "55+ in-house architects — free design for construction clients",
+        "POL app: daily photo updates & milestone alerts",
+        "Price-match guarantee vs competing quotes",
+        "Vastu-compliant design by default"
+      ],
+      "note": "Design-and-build firm — same team designs and constructs. Also +91 93611 62006."
+    },
+    {
+      "slug": "innovative-homes",
+      "name": "Innovative Homes & Developers",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "phone": "+91 98410 12145",
+      "website": "innovativehomes.in",
+      "areas": "T. Nagar (Bharathi Nagar) — Chennai-wide",
+      "inclusions": [
+        "Turnkey contractors for smart homes",
+        "End-to-end design + build + handover"
+      ],
+      "note": "Rate on enquiry — focused on smart-home turnkey projects."
+    },
+    {
+      "slug": "variety-builders",
+      "name": "Variety Builders",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "phone": "+91 90032 21103",
+      "website": "varietybuilders.in",
+      "areas": "Choolai (V.V. Koil Street) — Central Chennai",
+      "inclusions": [
+        "Turnkey construction with or without interiors",
+        "CMDA/DTCP handling",
+        "After-handover support"
+      ],
+      "note": "Rate on enquiry — good option for first-time builders wanting single-point responsibility."
+    },
+    {
+      "slug": "kamalam-builders",
+      "name": "Kamalam Builders",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "years": 20,
+      "phone": "+91 93848 57776",
+      "website": "kamalambuilders.com",
+      "areas": "Ethiraj Salai (near Ethiraj College) — Chennai-wide",
+      "inclusions": [
+        "Residential apartments & individual homes",
+        "Joint-venture construction",
+        "Commercial properties & plot development"
+      ],
+      "note": "200+ satisfied customers, 2 million+ sq.ft constructed. Landline 044 4358 6767."
+    },
+    {
+      "slug": "kanish-constructions",
+      "name": "Kanish Constructions & Interiors",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "years": 16,
+      "rating": 4.9,
+      "reviews": 43,
+      "phone": "+91 80698 74757",
+      "areas": "Anna Nagar — North & Central Chennai",
+      "inclusions": [
+        "Building construction & turnkey projects",
+        "Interiors & aluminium fabrication in-house",
+        "Apartment & individual house construction"
+      ],
+      "note": "Contact number via Sulekha directory. 4.9★ from 43 reviews."
+    },
+    {
+      "slug": "sri-vishwakesena-builders",
+      "name": "Sri Vishwakesena Builders",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "rating": 5.0,
+      "reviews": 8,
+      "phone": null,
+      "areas": "Anna Nagar — Chennai-wide",
+      "inclusions": [
+        "Building consultants & contractors",
+        "Turnkey project consultants"
+      ],
+      "note": "Verified on Sulekha (5.0★, 8 reviews) — contact via Sulekha directory."
+    },
+    {
+      "slug": "vandayar-infra",
+      "name": "Vandayar Infra",
+      "city": "Chennai",
+      "type": "turnkey",
+      "rate": null,
+      "rating": 5.0,
+      "reviews": 3,
+      "phone": "+91 80354 27566",
+      "areas": "Guduvanchery — Chengalpattu belt (Urapakkam, Potheri, Singaperumal Koil)",
+      "inclusions": [
+        "Turnkey project consultants",
+        "Building renovation contractors",
+        "Factory & commercial construction"
+      ],
+      "note": "Contact number via Sulekha directory — serves the fast-growing Guduvanchery belt."
+    },
+    {
+      "slug": "alex-builders",
+      "name": "Alex Builders",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 4.9,
+      "reviews": 15,
+      "phone": "+91 80698 75953",
+      "areas": "Mugalivakkam — West/South-west Chennai (Porur, Valasaravakkam belt)",
+      "inclusions": [
+        "Building consultants & contractors",
+        "Renovation contractors",
+        "Factory construction"
+      ],
+      "note": "Contact number via Sulekha directory. 4.9★ from 15 reviews."
+    },
+    {
+      "slug": "blue-nest-homes",
+      "name": "Blue Nest Homes",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "years": 14,
+      "rating": 5.0,
+      "reviews": 4,
+      "phone": "+91 90211 09193",
+      "areas": "Velachery — South Chennai",
+      "inclusions": [
+        "Individual homes & apartment construction",
+        "Renovation works"
+      ],
+      "note": "Contact number via Sulekha directory. 5.0★ rating."
+    },
+    {
+      "slug": "jayavel-foundations",
+      "name": "Jayavel Foundations",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 4.5,
+      "reviews": 2,
+      "phone": "+91 80480 93166",
+      "areas": "Anna Nagar East — North & Central Chennai",
+      "inclusions": [
+        "Apartment & flat construction",
+        "Individual house construction",
+        "Commercial & industrial buildings"
+      ],
+      "note": "Contact number via Sulekha directory."
+    },
+    {
+      "slug": "sri-narayani-construction",
+      "name": "Sri Narayani Construction",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 5.0,
+      "reviews": 26,
+      "phone": "+91 80698 68429",
+      "areas": "Madipakkam — South Chennai (Pallikaranai, Velachery belt)",
+      "inclusions": [
+        "Building consultants & contractors",
+        "Individual houses & renovations"
+      ],
+      "note": "Contact number via Sulekha directory. 5.0★ from 26 reviews."
+    },
+    {
+      "slug": "immanuel-foundations",
+      "name": "Immanuel Foundations",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 4.9,
+      "reviews": 19,
+      "phone": "+91 80696 70314",
+      "areas": "Ullagaram — South Chennai (Madipakkam, Keelkattalai belt)",
+      "inclusions": [
+        "Building construction",
+        "Renovation contractors"
+      ],
+      "note": "Contact number via Sulekha directory. 4.9★ from 19 reviews."
+    },
+    {
+      "slug": "divine-construction",
+      "name": "Divine Construction",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "years": 11,
+      "phone": "+91 90211 07638",
+      "areas": "Velachery — South Chennai",
+      "inclusions": [
+        "Building consultants & contractors",
+        "Renovation & factory construction"
+      ],
+      "note": "Contact number via Sulekha directory. 11 years experience, responds within ~15 mins."
+    },
+    {
+      "slug": "kkarthick-construction",
+      "name": "Kkarthick Construction",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "years": 18,
+      "rating": 5.0,
+      "reviews": 2,
+      "phone": null,
+      "areas": "Anna Nagar — Chennai-wide",
+      "inclusions": [
+        "Building & factory construction contractors",
+        "Renovation works"
+      ],
+      "note": "Verified on Sulekha — 18 years experience. Contact via Sulekha directory."
+    },
+    {
+      "slug": "pvs-constructions",
+      "name": "PVS Constructions",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 5.0,
+      "reviews": 8,
+      "phone": "+91 80698 75882",
+      "areas": "MGR Nagar — Central Chennai (T. Nagar, Ashok Nagar belt)",
+      "inclusions": [
+        "Building construction",
+        "Renovation contractors"
+      ],
+      "note": "Contact number via Sulekha directory. 5.0★ from 8 reviews."
+    },
+    {
+      "slug": "vjn-constructions",
+      "name": "VJN Constructions",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "rating": 4.5,
+      "reviews": 10,
+      "phone": "+91 73069 30907",
+      "areas": "Kovilambakkam — South Chennai (Medavakkam, Nanmangalam belt)",
+      "inclusions": [
+        "Building construction",
+        "Renovation works"
+      ],
+      "note": "Contact number via Sulekha directory. 4.5★ from 10 reviews."
+    },
+    {
+      "slug": "kwality-constructions",
+      "name": "Kwality Constructions",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "phone": "+91 99407 55699",
+      "areas": "Velachery — South Chennai",
+      "inclusions": [
+        "Building construction & civil works",
+        "Renovation projects"
+      ],
+      "note": "Rate on enquiry."
+    },
+    {
+      "slug": "trio-constructions",
+      "name": "Trio Constructions",
+      "city": "Chennai",
+      "type": "contractor",
+      "rate": null,
+      "phone": "+91 94450 97621",
+      "areas": "Velachery — South Chennai",
+      "inclusions": [
+        "Building consultants & contractors",
+        "Civil works"
+      ],
+      "note": "Rate on enquiry."
     },
     {
       "slug": "greentree-construction",
@@ -85,10 +560,9 @@
         "RCC structure with IS-certified M-sand & jelly",
         "Wire-cut brick walls + plastering",
         "Vitrified flooring & skirting",
-        "Basic plumbing & electrical points",
-        "Interior emulsion painting"
+        "Basic plumbing & electrical points"
       ],
-      "note": "Uses locally sourced AAC blocks for added thermal comfort at nominal extra cost."
+      "note": "SAMPLE LISTING — replace with real Coimbatore data."
     },
     {
       "slug": "kovai-dream-homes",
@@ -106,11 +580,9 @@
       "inclusions": [
         "Turnkey construction with 3D elevation design",
         "Premium tiles & sanitary ware",
-        "Modular kitchen with chimney & hob",
-        "Solar water heater provision",
-        "Rainwater harvesting & compound gate"
+        "Modular kitchen with chimney & hob"
       ],
-      "note": "Free site visit & detailed BOQ before signing."
+      "note": "SAMPLE LISTING — replace with real Coimbatore data."
     },
     {
       "slug": "thendral-constructions",
@@ -127,12 +599,10 @@
       "areas": "Madurai, Thirumangalam, Usilampatti",
       "inclusions": [
         "Complete RCC structure",
-        "Country brick / fly-ash brick walls",
         "Standard flooring & painting",
-        "Electrical & plumbing (concealed)",
-        "Compound wall frontage (10 ft)"
+        "Electrical & plumbing (concealed)"
       ],
-      "note": "Popular for budget G+1 homes on the Madurai outskirts."
+      "note": "SAMPLE LISTING — replace with real Madurai data."
     },
     {
       "slug": "pandian-labour-contractors",
@@ -150,10 +620,9 @@
       "inclusions": [
         "Skilled masons, bar benders & helpers",
         "Centering & shuttering work",
-        "All labour for civil works",
-        "Owner supplies all materials"
+        "All labour for civil works — owner supplies materials"
       ],
-      "note": "Labour-only contract — cheapest route if you can manage material purchase yourself (see our Material Calculator)."
+      "note": "SAMPLE LISTING — labour-only contract reference point."
     },
     {
       "slug": "rockcity-builders",
@@ -170,12 +639,10 @@
       "areas": "Trichy — Thillai Nagar, KK Nagar, Anna Nagar, Thuvakudi",
       "inclusions": [
         "RCC structure + wire-cut brick work",
-        "Vitrified tile flooring (₹85/sq.ft grade)",
-        "Full electrical & plumbing with branded fittings",
-        "Interior & exterior painting",
+        "Vitrified tile flooring",
         "Overhead tank + sump provision"
       ],
-      "note": "Approval assistance (DTCP/CRZ) available at actuals."
+      "note": "SAMPLE LISTING — replace with real Trichy data."
     },
     {
       "slug": "cauvery-construction-co",
@@ -193,10 +660,9 @@
       "inclusions": [
         "Structure + masonry + plastering",
         "Terrace waterproofing",
-        "Basic electrical conduit laying",
         "Finishes by owner"
       ],
-      "note": "Good option when you already have materials from your own quarry/dealer contacts."
+      "note": "SAMPLE LISTING — semi-turnkey reference point."
     },
     {
       "slug": "steel-city-builders",
@@ -214,10 +680,9 @@
       "inclusions": [
         "Complete structure with branded steel",
         "Standard finishes & fittings",
-        "Painting (interior + exterior)",
         "Basic woodwork — main door frame & shutters"
       ],
-      "note": "Steel-frame construction packages also available on request."
+      "note": "SAMPLE LISTING — replace with real Salem data."
     },
     {
       "slug": "nellai-housing",
@@ -235,10 +700,9 @@
       "inclusions": [
         "RCC structure + brick work",
         "Flooring & painting",
-        "Electrical & plumbing points",
         "Sump + overhead tank"
       ],
-      "note": "Coastal-area packages (Tuticorin) use corrosion-resistant TMT — ask for CRS grade."
+      "note": "SAMPLE LISTING — replace with real Tirunelveli data."
     },
     {
       "slug": "royal-nest-constructions",
@@ -256,10 +720,9 @@
       "inclusions": [
         "Turnkey with premium elevation work",
         "Designer main door & windows",
-        "Modular kitchen & wardrobes",
         "Landscaping & driveway"
       ],
-      "note": "Sample listing — premium segment; site visit arranged within 48 hours."
+      "note": "SAMPLE LISTING — replace with real Vellore data."
     }
   ]
 }

@@ -22,7 +22,7 @@ python3 app.py
 | 🇮🇳 Bilingual UI | One tap switches the entire interface between English and Tamil |
 | ❤️ Favourites | Save materials & stores (persists in the browser) |
 | 🧮 Construction calculator | Material estimate (built-up area, quality tier, floors, wall material) + **Home Loan EMI calculator** (cost, down payment, rate, tenure → EMI, total interest, principal-vs-interest split) |
-| 🏗️ Builders directory | 12 sample builders across 7 TN cities with turnkey / semi-turnkey / labour package rates (₹550–₹2,800 per sq.ft), inclusions, service areas — filter by city & package type |
+| 🏗️ Builders directory | **32 real Chennai-area builders** (compiled from company websites, Justdial & Sulekha, Sep 2026) with package rates ₹1,550–₹2,500/sq.ft, phones, websites, inclusions + 9 sample listings in other TN cities — filter by city & package type |
 
 ## Project layout
 
@@ -32,7 +32,7 @@ buildrate-tn/
 ├── data/
 │   ├── materials.json     # 31 materials: prices, brands, specs, keywords
 │   ├── stores.json        # 14 stores: contact, hours, per-material prices
-│   └── builders.json      # 12 builders: package rates, inclusions, service areas
+│   └── builders.json      # 41 builders (32 real Chennai + 9 samples): rates, contacts, inclusions
 └── static/
     ├── index.html         # app shell (phone-frame layout)
     ├── css/style.css      # mobile-first styling
