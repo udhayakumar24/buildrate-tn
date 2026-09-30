@@ -862,6 +862,7 @@ body {
 .aiStatus { flex: none; font-size: .6rem; font-weight: 700; color: #9db4cc; background: rgba(255,255,255,.1); padding: 4px 8px; border-radius: 99px; white-space: nowrap; }
 .aiStatus.on { color: #7ef0ae; background: rgba(46, 204, 113, .18); }
 .chatGear { margin-right: 6px; font-size: 1rem; }
+.chatClear { margin-right: 6px; font-size: .8rem; padding: 0; line-height: 1; }
 .aiCfg {
   position: absolute; inset: 0; z-index: 5; background: var(--bg);
   overflow-y: auto; padding: 16px 16px calc(20px + env(safe-area-inset-bottom));

@@ -259,8 +259,9 @@
       quote_total_project: 'Total project cost',
       quote_note: 'Indicative Tamil Nadu ranges (Sep 2026). Interiors/woodwork, land cost & registration are NOT included. Some builders include sump, septic or compound wall — check exactly what your package covers.',
       ai_title: 'Ask BuildRate AI',
-      ai_sub: 'Construction help · works offline',
+      ai_sub: 'Online AI · TN construction help',
       ai_placeholder: 'Ask about construction…',
+      ai_cleared: 'Chat cleared — fresh start! 🗑️',
       ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — now ONLINE, so ask me anything like ChatGPT 🤖 For construction questions I use this app's live price data. (Free online mode can be slow at busy times — add your own free Gemini key via ⚙ for faster replies.)",
       ai_fallback: "I don't know that one offline. I can help with material prices, Chennai builders, EMI & prepayment, cost estimates (try \"3BHK G+1 cost breakdown\"), thumb rules, approvals, vastu… — or tap ⚙ and add a free API key to enable Full AI, which answers anything.",
       ai_open_materials: 'Open Materials',
@@ -451,8 +452,9 @@
       quote_total_project: 'மொத்த திட்டச் செலவு',
       quote_note: 'தமிழ்நாட்டு சராசரி வகைப்பாடுகள் (செப். 2026). இன்டீரியர்/மர வேலை, நில விலை & பதிவுக் கட்டணம் சேர்க்கப்படவில்லை. சில பில்டர்கள் சம்ப், செப்டிக், சுற்றுசுவரையும் பேக்கேஜில் சேர்ப்பார்கள் — உங்கள் ஒப்பந்தத்தில் சரிபார்க்கவும்.',
       ai_title: 'BuildRate AI',
-      ai_sub: 'கட்டுமான உதவி · ஆஃப்லைன்',
+      ai_sub: 'ஆன்லைன் AI · கட்டுமான உதவி',
       ai_placeholder: 'கட்டுமானம் பற்றி கேளுங்கள்…',
+      ai_cleared: 'அரட்டை அழிக்கப்பட்டது — புதிதாக தொடங்கலாம்! 🗑️',
       ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — இப்போது ஆன்லைன்! ChatGPT மாதிரி எதையும் கேளுங்கள் 🤖 கட்டுமான கேள்விகளுக்கு ஆப்பின் நேரடி விலை தரவை பயன்படுத்துவேன். (இலவச ஆன்லைன் முறை சில நேரம் மெதுவாக இருக்கலாம் — ⚙-இல் இலவச Gemini கீ சேர்த்தால் வேகமாக இருக்கும்.)',
       ai_fallback: 'இதற்கு ஆஃப்லைனில் எனக்குத் தெரியாது. பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், செலவு மதிப்பீடு ("3BHK G+1 செலவு"), தம்புல் ரூல், ஒப்புதல், வாஸ்து பற்றி கேளுங்கள் — அல்லது ⚙ அழுத்தி இலவச API கீ சேர்த்து முழு AI முறையை இயக்குங்கள் (எதற்கும் பதில் தரும்).',
       ai_open_materials: 'பொருட்களைத் திற',
@@ -2046,6 +2048,16 @@
       case 'chat-open':
         chatOpen();
         break;
+      case 'chat-clear': {
+        state.chat.msgs = [{ r: 'a', h: chatFmt(t('ai_greeting')) }];
+        persistSet('br_chat', state.chat.msgs);
+        document.getElementById('aiCfg').hidden = true;
+        document.getElementById('chatSugg').style.display = '';
+        chatSuggRender();
+        chatRender();
+        toast(t('ai_cleared'));
+        break;
+      }
       case 'chat-close':
         chatClose();
         break;
