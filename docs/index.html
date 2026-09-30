@@ -873,6 +873,19 @@ body {
 .aiStatus.on { color: #7ef0ae; background: rgba(46, 204, 113, .18); }
 .chatGear { margin-right: 6px; font-size: 1rem; }
 .chatClear { margin-right: 6px; font-size: .8rem; padding: 0; line-height: 1; }
+.imgWrap { position: relative; margin-top: 8px; min-height: 100px; border-radius: 12px; overflow: hidden; background: rgba(127,127,127,.14); }
+.msgImg { display: block; width: 100%; max-width: 320px; opacity: 0; transition: opacity .4s; }
+.imgWrap.ok .msgImg { opacity: 1; }
+.imgWrap.ok { min-height: 0; background: none; }
+.imgLoad, .imgErr { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .78rem; padding: 10px; text-align: center; }
+.imgLoad::before { content: ''; width: 14px; height: 14px; margin-right: 8px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: imgspin 1s linear infinite; }
+@keyframes imgspin { to { transform: rotate(360deg); } }
+.imgErr { display: none; background: rgba(220,60,60,.18); }
+.imgWrap.bad .imgLoad { display: none; }
+.imgWrap.bad .imgErr { display: flex; }
+.imgWrap.bad .msgImg { display: none; }
+.imgWrap.ok .imgLoad { display: none; }
+.imgRegen { margin-top: 8px; }
 .aiCfg {
   position: absolute; inset: 0; z-index: 5; background: var(--bg);
   overflow-y: auto; padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
@@ -1241,7 +1254,13 @@ body {
       ai_sub: 'Online AI · TN construction help',
       ai_placeholder: 'Ask about construction…',
       ai_cleared: 'Chat cleared — fresh start! 🗑️',
-      ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — now ONLINE, so ask me anything like ChatGPT 🤖 For construction questions I use this app's live price data. (Free online mode can be slow at busy times — add your own free Gemini key via ⚙ for faster replies.)",
+      ai_img_cap: 'AI-generated image',
+      ai_img_working: '🎨 Generating your image… (takes 5–30s)',
+      ai_img_busy: '⏳ Free image service is busy — retrying automatically…',
+      ai_img_fail: '⚠️ Image failed — tap Retry below',
+      ai_img_regen: 'Retry / new image',
+      ai_img_what: "Sure, I can generate images! 🎨 Describe what you want — e.g. 'generate an image of a modern 3BHK house elevation, evening light' or '2bhk kitchen interior image'.",
+      ai_greeting: "Vanakkam! 👋 I'm BuildRate AI — now ONLINE, so ask me anything like ChatGPT 🤖 For construction questions I use this app's live price data. I also generate 🖼️ images — try 'generate an image of a modern 3BHK house'. (Free online mode can be slow at busy times — add your own free Gemini key via ⚙ for faster replies.)",
       ai_fallback: "I don't know that one offline. I can help with material prices, Chennai builders, EMI & prepayment, cost estimates (try \"3BHK G+1 cost breakdown\"), thumb rules, approvals, vastu… — or tap ⚙ and add a free API key to enable Full AI, which answers anything.",
       ai_open_materials: 'Open Materials',
       ai_open_builders: 'Open Builders',
@@ -1434,7 +1453,13 @@ body {
       ai_sub: 'ஆன்லைன் AI · கட்டுமான உதவி',
       ai_placeholder: 'கட்டுமானம் பற்றி கேளுங்கள்…',
       ai_cleared: 'அரட்டை அழிக்கப்பட்டது — புதிதாக தொடங்கலாம்! 🗑️',
-      ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — இப்போது ஆன்லைன்! ChatGPT மாதிரி எதையும் கேளுங்கள் 🤖 கட்டுமான கேள்விகளுக்கு ஆப்பின் நேரடி விலை தரவை பயன்படுத்துவேன். (இலவச ஆன்லைன் முறை சில நேரம் மெதுவாக இருக்கலாம் — ⚙-இல் இலவச Gemini கீ சேர்த்தால் வேகமாக இருக்கும்.)',
+      ai_img_cap: 'AI உருவாக்கிய படம்',
+      ai_img_working: '🎨 படம் உருவாக்கப்படுகிறது… (5–30 விநாடி)',
+      ai_img_busy: '⏳ இலவச படம் சேவை நெருக்கடியில் — தானாக மீண்டும் முயற்சிக்கிறது…',
+      ai_img_fail: '⚠️ படம் தோல்வி — கீழே Retry அழுத்தவும்',
+      ai_img_regen: 'மீண்டும் முயற்சி / புது படம்',
+      ai_img_what: 'நான் படங்கள் உருவாக்க முடியும்! 🎨 என்ன வேண்டும் என விவரிக்கவும் — உதா: "அழகிய 3BHK வீட்டின் படம் உருவாக்கு", "2bhk சமையலறை இன்டீரியர் படம்".',
+      ai_greeting: 'வணக்கம்! 👋 நான் BuildRate AI — இப்போது ஆன்லைன்! ChatGPT மாதிரி எதையும் கேளுங்கள் 🤖 கட்டுமான கேள்விகளுக்கு ஆப்பின் நேரடி விலை தரவை பயன்படுத்துவேன். 🖼️ படங்களும் உருவாக்குவேன் — "அழகிய 3BHK வீட்டின் படம் உருவாக்கு" எனக் கேளுங்கள். (இலவச ஆன்லைன் முறை சில நேரம் மெதுவாக இருக்கலாம் — ⚙-இல் இலவச Gemini கீ சேர்த்தால் வேகமாக இருக்கும்.)',
       ai_fallback: 'இதற்கு ஆஃப்லைனில் எனக்குத் தெரியாது. பொருள் விலைகள், சென்னை பில்டர்கள், EMI & முன்செலுத்தல், செலவு மதிப்பீடு ("3BHK G+1 செலவு"), தம்புல் ரூல், ஒப்புதல், வாஸ்து பற்றி கேளுங்கள் — அல்லது ⚙ அழுத்தி இலவச API கீ சேர்த்து முழு AI முறையை இயக்குங்கள் (எதற்கும் பதில் தரும்).',
       ai_open_materials: 'பொருட்களைத் திற',
       ai_open_builders: 'பில்டர்களைத் திற',
@@ -1953,11 +1978,36 @@ body {
     return e;
   }
 
+  // image load handlers (inline attributes need globals) — auto-retry beats the free tier's ~1/min window
+  window.brImgOk = function (el) {
+    var w = el.parentNode;
+    w.classList.add('ok'); w.classList.remove('bad');
+    el.dataset.tries = '0';
+  };
+  window.brImgErr = function (el) {
+    var n = +(el.dataset.tries || 0);
+    if (n >= 4) { el.parentNode.classList.add('bad'); return; }
+    el.dataset.tries = String(n + 1);
+    var w = el.parentNode;
+    w.classList.remove('bad');
+    var cap = w.querySelector('.imgLoad');
+    if (cap && window.brImgBusyTxt) cap.textContent = window.brImgBusyTxt;
+    setTimeout(function () {
+      el.src = el.src.split('&_r=')[0] + '&_r=' + Date.now();
+    }, [15000, 30000, 45000, 60000][n]);
+  };
+
   function chatRender() {
     var body = document.getElementById('chatBody');
     if (!body) return;
+    window.brImgBusyTxt = t('ai_img_busy');
     body.innerHTML = state.chat.msgs.map(function (m) {
-      return '<div class="msg ' + (m.r === 'u' ? 'msgU' : 'msgA') + '"><div class="bubble">' + m.h + '</div>' +
+      var imgHtml = m.img ? '<div class="imgWrap"><img class="msgImg" src="' + esc(m.img) + '" alt="' + esc(m.imgq || 'AI image') + '"' +
+        ' onload="brImgOk(this)" onerror="brImgErr(this)">' +
+        '<div class="imgLoad">' + esc(t('ai_img_working')) + '</div>' +
+        '<div class="imgErr">' + esc(t('ai_img_fail')) + '</div></div>' +
+        '<button class="chip imgRegen" data-action="img-regen" data-iid="' + esc(m.iid || '') + '">🔄 ' + esc(t('ai_img_regen')) + '</button>' : '';
+      return '<div class="msg ' + (m.r === 'u' ? 'msgU' : 'msgA') + '"><div class="bubble">' + m.h + imgHtml + '</div>' +
         (m.a && m.a.length ? '<div class="msgActs">' + m.a.map(function (x) {
           return '<button class="chip" data-action="chat-act" data-hash="' + esc(x.hash) + '">' + esc(x.label) + '</button>';
         }).join('') + '</div>' : '') + '</div>';
@@ -1970,11 +2020,76 @@ body {
     if (!el) return;
     var ta = state.lang === 'ta';
     var sugg = ta
-      ? [['இன்றைய சிமெண்ட் விலை', 'சிமெண்ட் விலை என்ன'], ['மலிவான சென்னை பில்டர்கள்', 'சென்னையில் மலிவான பில்டர்கள்'], ['சதுர அடிக்கு இரும்பு விலை', 'சதுர அடிக்கு இரும்பு விலை'], ['30 லட்சம் கடா EMI', '30 லட்சம் கடா EMI']]
-      : [['Cement price today', 'cement price today'], ['Cheapest Chennai builders', 'cheapest builders in chennai'], ['How much steel per sqft', 'how much steel per sqft'], ['EMI for 30 lakhs', 'emi for 30 lakhs']];
+      ? [['இன்றைய சிமெண்ட் விலை', 'சிமெண்ட் விலை என்ன'], ['மலிவான சென்னை பில்டர்கள்', 'சென்னையில் மலிவான பில்டர்கள்'], ['சதுர அடிக்கு இரும்பு விலை', 'சதுர அடிக்கு இரும்பு விலை'], ['30 லட்சம் கடா EMI', '30 லட்சம் கடா EMI'], ['🖼️ 2BHK வீட்டு படம்', 'அழகிய 2bhk வீட்டின் படம் உருவாக்கு']]
+      : [['Cement price today', 'cement price today'], ['Cheapest Chennai builders', 'cheapest builders in chennai'], ['How much steel per sqft', 'how much steel per sqft'], ['EMI for 30 lakhs', 'emi for 30 lakhs'], ['🖼️ 2BHK house image', 'generate an image of a modern 2BHK house elevation']];
     el.innerHTML = sugg.map(function (s) {
       return '<button class="chip" data-action="chat-sugg" data-q="' + esc(s[1]) + '">' + esc(s[0]) + '</button>';
     }).join('');
+  }
+
+  // ---------- AI image generation (free, no key) ----------
+  function imgUrl(p, seed) {
+    return 'https://image.pollinations.ai/prompt/' + encodeURIComponent(p) +
+      '?width=768&height=576&nologo=true&model=flux&seed=' + seed;
+  }
+
+  function imgDetect(q) {
+    var hit = /\b(image|images|picture|pictures|photo|photos|pic|pics|sketch|drawing|draw)\b/i.test(q) ||
+      /(படம்|படங்கள்|புகைப்படம்|புகைப்படங்கள்|வரைவு|வரையுங்கள்|வரைத்து)/.test(q);
+    if (!hit) return null;
+    var p = q
+      .replace(/\b(please|kindly|can you|could you|for me)\b/gi, ' ')
+      .replace(/\b(generate|create|make|draw|show|give|send|design)\s+(me\s+)?(an?\s+)?(image|picture|photo|pic|sketch|drawing)s?\s*(of|for|showing|:)?\s*/gi, ' ')
+      .replace(/\b(image|picture|photo|pic|sketch|drawing)s?\s+(of|for)\b/gi, ' ')
+      .replace(/\b(image|picture|photo|pic|sketch|drawing)s?\b/gi, ' ')
+      .replace(/\bdraw\b/gi, ' ')
+      .replace(/(படம்|படங்கள்|புகைப்படம்|புகைப்படங்கள்|வரைவு|வரைபடம்|வரையுங்கள்|வரைத்து)/g, ' ')
+      .replace(/(காட்டுங்கள்|காட்டு|தாருங்கள்|வேண்டும்|உருவாக்குங்கள்|உருவாக்கு|செய்து\s*தாருங்கள்|எனக்கு|ஒரு|தயவுசெய்து)/g, ' ')
+      .replace(/\s+/g, ' ').trim();
+    return { prompt: p, raw: q };
+  }
+
+  function chatImage(req) {
+    function push(prompt, seed) {
+      state.chat.msgs.pop();
+      state.chat.msgs.push({
+        r: 'a',
+        h: chatFmt('🎨 ' + t('ai_img_cap') + '\n\n**' + prompt + '**'),
+        t: '🎨 ' + t('ai_img_cap') + ': ' + prompt,
+        img: imgUrl(prompt, seed), imgq: prompt,
+        iid: 'iw' + Date.now() + Math.floor(Math.random() * 999)
+      });
+      persistSet('br_chat', state.chat.msgs);
+      chatRender();
+    }
+    if (!req.prompt) {
+      state.chat.msgs.pop();
+      var w = t('ai_img_what');
+      state.chat.msgs.push({ r: 'a', h: chatFmt(w), t: w });
+      persistSet('br_chat', state.chat.msgs);
+      chatRender();
+      return;
+    }
+    var seed = Math.floor(Math.random() * 1e6);
+    if (/[\u0B80-\u0BFF]/.test(req.prompt)) {
+      // Tamil prompt: ask the free text AI to turn it into an English image prompt
+      fetch('https://text.pollinations.ai/openai', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai', temperature: 0.2, max_tokens: 120,
+          messages: [
+            { role: 'system', content: 'Convert the user text into a short English image-generation prompt (often a house/building/construction context in Tamil Nadu). Reply with ONLY the prompt itself, no quotes.' },
+            { role: 'user', content: req.prompt }
+          ]
+        })
+      }).then(function (r) { return r.json(); }).then(function (j) {
+        var p = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+        p = p && p.trim() ? p.trim().replace(/^["']+|["']+$/g, '') : '';
+        push(p || req.prompt, seed);
+      }).catch(function () { push(req.prompt, seed); });
+    } else {
+      push(req.prompt, seed);
+    }
   }
 
   function chatSend(qRaw) {
@@ -1987,6 +2102,8 @@ body {
     chatRender();
     state.chat.msgs.push({ r: 'a', h: '<span class="dots"><i></i><i></i><i></i></span>' });
     chatRender();
+    var imgReq = imgDetect(q);
+    if (imgReq) { chatImage(imgReq); return; }
     Promise.all([api('/api/materials'), api('/api/builders'), api('/api/stores')]).then(function (res) {
       var mats = (res[0] && res[0].materials) || [];
       var builders = (res[1] && res[1].builders) || [];
@@ -3027,6 +3144,15 @@ body {
       case 'chat-open':
         chatOpen();
         break;
+      case 'img-regen': {
+        var im = state.chat.msgs.filter(function (x) { return x.iid === el.dataset.iid; })[0];
+        if (im && im.imgq) {
+          im.img = imgUrl(im.imgq, Math.floor(Math.random() * 1e6));
+          persistSet('br_chat', state.chat.msgs);
+          chatRender();
+        }
+        break;
+      }
       case 'chat-clear': {
         state.chat.msgs = [{ r: 'a', h: chatFmt(t('ai_greeting')) }];
         persistSet('br_chat', state.chat.msgs);
